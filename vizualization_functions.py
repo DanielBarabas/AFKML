@@ -31,6 +31,6 @@ def scatter(df, chosen_features):
     fig = (
         alt.Chart(df)
         .mark_circle(size=60)
-        .encode(x=chosen_features[0], y=chosen_features[1])
+        .encode(alt.X(f"{chosen_features[0]}:Q"), alt.Y(f"{chosen_features[1]}:Q"))
     )
     return fig
