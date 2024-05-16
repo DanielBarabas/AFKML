@@ -11,6 +11,7 @@ user_file = st.file_uploader(
 )
 
 # TODO add compressed upload option
+# TODO what if user wants to upload another data? - session state if statement doesn't allow that
 if user_file is not None:
     # TODO downcast numerical values automatically?
     try:
@@ -21,6 +22,8 @@ if user_file is not None:
         if "df" not in st.session_state:
             st.session_state["df"] = pd.read_excel(user_file)
 
+
+if "df" in st.session_state:
     st.write("Here are the data types of columns and the first observations")
     # TODO printed dtypes should refresh (using session_state is not enough)
     st.write(
