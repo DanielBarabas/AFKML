@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-st.set_page_config(
-    page_title= "CodeFreePredictor"
-)
+
+st.set_page_config(page_title="AFKMLOMG")
 st.title("Data Upload page")
 st.sidebar.success("Select a page above.")
 
-user_file = st.sidebar.file_uploader(label="You can upload the data here.",
-                                     type = ['csv','xlsx'])
+user_file = st.sidebar.file_uploader(
+    label="You can upload the data here.", type=["csv", "xlsx"]
+)
 if user_file is not None:
     try:
         df = pd.read_csv(user_file)
