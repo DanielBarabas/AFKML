@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
+import data_wrangling as dw
 
-st.set_page_config(page_title="Homepage", layout="wide", page_icon="🏠")
+st.set_page_config(page_title="Home page", layout="wide")
 st.title("Data Upload page")
 
 
@@ -10,29 +11,20 @@ user_file = st.file_uploader(
 )
 
 # TODO add compressed upload option
+# TODO frissüljön a dtype a kiírt df-ben - talán st.session_state-tel?
 if user_file is not None:
+    # TODO downcast numerical values automatically?
     try:
         df = pd.read_csv(user_file)
     except Exception as e:
         print(e)
         df = pd.read_excel(user_file)
 
-    dtypes = df.dtypes
-
-    head_dtypes = pd.concat([dtypes.rename("dtype").to_frame().T, df.head(5)])
-
     st.write("Here is the head and variable types of your data")
-    st.write(head_dtypes)
+    st.write(pd.concat([df.dtypes.rename("dtype").to_frame().T, df.head(5)]))
 
-    vars_recast = st.multiselect("Choose variables to set data types", dtypes.index)
-    vars_recast = {var: None for var in vars_recast}
-    # st.write(vars_recast)
+    ### Recast datatypes
+    vars_recast = st.multiselect("Choose variables to set data types", df.dtypes.index)
+    df = dw.cast_dtypes(df, vars_recast)
 
-    # TODO add more var types: ordinal, date-time, string -> do proper encoding
-    for var in vars_recast.keys():
-        # Display dropdown for each selected variable
-        vars_recast[var] = st.selectbox(
-            f"Select dtype for {var}", ["Numeric", "Categorical"]
-        )
-
-    st.write(df.dtypes)
+    # st.write(df.dtypes)
