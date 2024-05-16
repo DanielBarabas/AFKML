@@ -11,20 +11,29 @@ user_file = st.file_uploader(
 )
 
 # TODO add compressed upload option
-# TODO frissüljön a dtype a kiírt df-ben - talán st.session_state-tel?
 if user_file is not None:
     # TODO downcast numerical values automatically?
     try:
-        df = pd.read_csv(user_file)
+        if "df" not in st.session_state:
+            st.session_state["df"] = pd.read_csv(user_file)
     except Exception as e:
         print(e)
-        df = pd.read_excel(user_file)
+        if "df" not in st.session_state:
+            st.session_state["df"] = pd.read_excel(user_file)
 
-    st.write("Here is the head and variable types of your data")
-    st.write(pd.concat([df.dtypes.rename("dtype").to_frame().T, df.head(5)]))
+    st.write("Here are the data types of columns and the first observations")
+    # TODO printed dtypes should refresh (using session_state is not enough)
+    st.write(
+        pd.concat(
+            [
+                st.session_state["df"].dtypes.rename("dtype").to_frame().T,
+                st.session_state["df"].head(5),
+            ]
+        )
+    )
 
     ### Recast datatypes
-    vars_recast = st.multiselect("Choose variables to set data types", df.dtypes.index)
-    df = dw.cast_dtypes(df, vars_recast)
-
-    # st.write(df.dtypes)
+    vars_recast = st.multiselect(
+        "Choose variables to set data types", st.session_state["df"].dtypes.index
+    )
+    df = dw.cast_dtypes(st.session_state["df"], vars_recast)
