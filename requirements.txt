@@ -3,3 +3,5 @@ streamlit
 ydata-profiling
 streamlit-pandas-profiling
 altair
+missingno
+matplotlib
