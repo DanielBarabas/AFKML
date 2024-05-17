@@ -1,5 +1,5 @@
 pandas
 streamlit
+ydata-profiling
 streamlit-pandas-profiling
 altair
-ydata-profiling
