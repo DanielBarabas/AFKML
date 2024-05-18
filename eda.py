@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 
+# TODO docstring for all the functions, at least input/output description
 def stacked_bar(df, chosen_features):
     fig = (
         alt.Chart(df)

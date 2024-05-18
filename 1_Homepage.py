@@ -25,7 +25,7 @@ if user_file is not None:
 
 if "df" in st.session_state:
     st.write("Here are the data types of columns and the first observations")
-    # TODO printed dtypes should refresh (using session_state is not enough)
+    # TODO sometimes dtypes in printed df doesn't refresh
     st.write(
         pd.concat(
             [

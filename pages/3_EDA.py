@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from visualization_functions import (
+from eda import (
     boxplot,
     stacked_bar,
     scatter,
