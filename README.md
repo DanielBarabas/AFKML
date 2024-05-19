@@ -24,6 +24,6 @@ A requirements telepítés során a ydata-profiling és a streamlit-pandas-profi
 ```
 pip install ydata-profiling
 ```
- A végleges verzióra ezt mindenféleképpen megoldjuk majd, de ez mostanra nem sikerült egyelőre. Nagyobb adaton az ábrák elkészítése még elég lassú, ezt is igyekszünk majd kijavítani a továbbiakban.
+ A végleges verzióra ezt mindenféleképpen megoldjuk majd, de ez mostanra nem sikerült sajnos (nem próbálkozás hiányában). Nagyobb adaton az ábrák elkészítése még elég lassú, ezt is igyekszünk majd kijavítani a továbbiakban.
 
  A két próba-adatot [itt](https://drive.google.com/drive/folders/1EjEyW7KaAytb7GVo1A3SJUoad6JzRi8R?usp=sharing) éritek el, mi ezeken teszteltük a működést, de persze mást is fel tudtok tölteni. Az egyik [repülőjáratok késésének előrejelzéséről](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations), a másik pedig [alkoholfogyasztás és dohányzás előrejelzéséről](https://www.kaggle.com/datasets/sooyoungher/smoking-drinking-dataset) szól.
