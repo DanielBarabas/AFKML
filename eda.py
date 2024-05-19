@@ -6,6 +6,23 @@ import matplotlib.patches as mpatches
 
 
 # TODO docstring for all the functions, at least input/output description
+def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
+    """Creates boxplot of value counts of a categorical variable
+
+    Args:
+        v_counts (pd.Series): Value counts for a categorical variable
+
+    Returns:
+        alt.Chart: Value counts bar plot
+    """
+    df = v_counts.reset_index()
+    df.columns = ["category", "count"]
+
+    fig = alt.Chart(df).mark_bar().encode(x="category:N", y="count:Q")
+
+    return fig
+
+
 def stacked_bar(df, chosen_features):
     fig = (
         alt.Chart(df)

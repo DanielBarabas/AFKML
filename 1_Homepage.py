@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import data_wrangling as dw
 
+
 st.set_page_config(page_title="Home page", layout="wide")
 st.title("Data Upload page")
 
@@ -11,9 +12,9 @@ user_file = st.file_uploader(
 )
 
 # TODO add compressed upload option
-# TODO what if user wants to upload another data? - session state if statement doesn't allow that
+# TODO what if user wants to upload another data? - session state if statement doesn't allow that (create refresh page button)
 if user_file is not None:
-    # TODO downcast numerical values automatically?
+    # TODO dtypes makes for bloated df -> downcast numerical values automatically?
     try:
         if "df" not in st.session_state:
             st.session_state["df"] = pd.read_csv(user_file)
