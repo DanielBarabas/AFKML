@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 
+# TODO plots take ages to create on data of ~1M rows -> look for better vis options?
 # TODO docstring for all the functions, at least input/output description
 def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
     """Creates boxplot of value counts of a categorical variable
