@@ -11,6 +11,7 @@ from eda import (
 )
 
 st.set_page_config(page_title="Exploratory data analysis", layout="wide")
+st.title("Exploratory data analysis")
 alt.data_transformers.disable_max_rows()
 cat_list = ["object", "category"]
 
