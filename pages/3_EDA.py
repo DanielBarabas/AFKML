@@ -20,7 +20,7 @@ with st.expander(label="Descriptive Statistics"):
     if st.button("Create descriptive statistics"):
         st.write(st.session_state["df"].describe())
 
-
+# TODO not just object but category dtype as well!
 with st.expander(label="Value counts for categorical data"):
     cat_options = (
         st.session_state["df"].select_dtypes(include="object").columns.tolist()

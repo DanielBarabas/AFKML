@@ -43,8 +43,6 @@ def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
     return df
 
 
-
-
 def create_type_df(df: pd.DataFrame):
     original_types = pd.DataFrame(
         {
@@ -156,7 +154,8 @@ def create_model_df(
                 for col1 in df.columns
                 if dtype_map_inverse[str(df[col1].dtype)] == "Numeric"
             ]
-        ],axis=1
+        ],
+        axis=1,
     )
     for _, row in res_df.iterrows():
         encoded_col, encoded_colname = create_encoded_column(
@@ -170,6 +169,6 @@ def create_model_df(
             encoded_col.columns = [encoded_colname]
         else:
             encoded_col.columns = encoded_colname
-        
-        model_df = pd.concat([model_df, encoded_col],axis=1)
+
+        model_df = pd.concat([model_df, encoded_col], axis=1)
     return model_df
