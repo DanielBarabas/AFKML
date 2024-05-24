@@ -23,7 +23,7 @@ with st.expander(label="Descriptive Statistics"):
 
 with st.expander(label="Value counts for categorical data"):
     cat_options = (
-        st.session_state["df"].select_dtypes(include="category").columns.tolist()
+        st.session_state["df"].select_dtypes(include="object").columns.tolist()
     )
     selected_cat = st.selectbox("Select categorical variable", cat_options)
     if st.button("Create value counts chart"):

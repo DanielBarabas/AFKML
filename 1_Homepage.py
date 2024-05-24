@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pages.modules.data_wrangling as dw
+import modules.data_wrangling as dw
 from st_aggrid import GridOptionsBuilder, AgGrid
 
 st.set_page_config(page_title="Home page", layout="wide")
