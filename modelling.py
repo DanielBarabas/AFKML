@@ -1,5 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import mean_squared_error
 
 
 def train_test_X_y_split(df: pd.DataFrame, y_colname: str, test_ratio: float = 0.2):
@@ -28,3 +30,36 @@ def train_test_X_y_split(df: pd.DataFrame, y_colname: str, test_ratio: float = 0
         )
         for i, f in enumerate(retlist)
     ]
+
+
+# TODO modify input param dtypes based on Barab's encoding
+# TODO Also return source as Mor's code?
+def rand_for(
+    params: dict,
+    loss_func: str,
+    feat_used: list,
+    X_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_train: pd.DataFrame,
+    y_test: pd.DataFrame,
+) -> list[pd.DataFrame]:
+    """Fits a random forest and evaluates it with chosen loss functions
+
+    Args:
+        params (dict): hyperparameters for the random forest
+        loss_func (str): loss function
+        feat_used (list): column names to be included in modelling
+        X_train (pd.DataFrame):
+        X_test (pd.DataFrame):
+        y_train (pd.DataFrame):
+        y_test (pd.DataFrame):
+
+    Returns:
+        list[pd.DataFrame]: rmse, rf
+    """
+    rf = RandomForestClassifier(**params).fit(X_train.loc[:, feat_used], y_train)
+    test_preds = rf.predict(X_test.loc[:, feat_used])
+    if loss_func == "rmse":
+        rmse = mean_squared_error(y_true=y_test, y_pred=test_preds)
+
+    return rmse, rf
