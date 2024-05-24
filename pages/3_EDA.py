@@ -15,7 +15,7 @@ st.title("Exploratory data analysis")
 alt.data_transformers.disable_max_rows()
 cat_list = ["object", "category"]
 
-
+# TODO add differing "key" param to buttons -> so that they can have the same name
 with st.expander(label="Descriptive Statistics"):
     if st.button("Create descriptive statistics"):
         st.write(st.session_state["df"].describe())
