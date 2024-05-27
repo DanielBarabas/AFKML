@@ -38,7 +38,8 @@ response = AgGrid(
     gridOptions=vgo,
 )
 
-model_df = create_model_df(response.data, st.session_state["df"], target_var, y_type)
-st.write(model_df)
+st.session_state["modeldf"] = create_model_df(
+    response.data, st.session_state["df"], target_var, y_type
+)
+st.write(st.session_state["modeldf"])
 # This has the encoded features in it
-st.session_state["modeldf"] = model_df
