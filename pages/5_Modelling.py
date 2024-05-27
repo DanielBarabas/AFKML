@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import numpy as np
@@ -11,6 +12,12 @@ import modelling as m
 
 st.set_page_config(page_title="Modelling", layout="wide")
 st.title("Modelling")
+
+
+# Define own function only for caching
+@st.cache_data
+def my_train_test_split(X, y, test_size):
+    return train_test_split(X, y, test_size=test_size, random_state=72)
 
 
 ### replace with session state df
@@ -32,18 +39,25 @@ df_colnames_oh = [str(f) for f in oh_enc.categories_[0][1:]]
 df_.columns = df_colnames_oh
 df = df_.join(df)
 
-df_ = pd.DataFrame(oh_enc.fit_transform(df[["DRK_YN"]].values.reshape(-1, 1)))
-df_colnames_oh = [str(f) for f in oh_enc.categories_[0][1:]]
-df_.columns = df_colnames_oh
-df = df_.join(df)
-
-df = df.rename(columns={"Y": "is_drinking"})
-df = df.drop(columns=["sex", "DRK_YN"])
+df = df.drop(columns=["sex"])
 
 st.write(df.head(10))
 #### replace up to that point
 
-with st.expander(label="Preparation", expanded=True):
+
+with st.expander(label="Target variable selection", expanded=True):
+    target_var = st.selectbox("Choose the target variable", options=df.columns)
+
+    if pd.api.types.is_categorical_dtype(df[target_var]):
+        label_encoder = LabelEncoder()
+        st.session_state["y"] = label_encoder.fit_transform(df[target_var])
+    else:
+        st.session_state["y"] = df[target_var]
+
+    df.drop(columns=target_var)
+
+
+with st.expander(label="Preparation"):
     problem_type = st.selectbox(
         "Choose the type of your problem",
         options=["Regression", "Multi-classification", "Binary-classification"],
@@ -51,7 +65,7 @@ with st.expander(label="Preparation", expanded=True):
 
     model_type = st.selectbox("Select model", options=["Random forest", "XGBoost"])
 
-    test_ratio = st.slider(
+    test_size = st.slider(
         "Select what ratio you want the test set to be",
         min_value=0.1,
         max_value=0.9,
@@ -59,22 +73,33 @@ with st.expander(label="Preparation", expanded=True):
         help="Normally test set ratio is between 0.1 and 0.3",
     )
 
-    X_train, X_test, y_train, y_test = m.train_test_X_y_split(
-        df=df, y_colname="triglyceride", test_ratio=test_ratio
-    )
+    # TODO ezt cache-elni
+    (
+        st.session_state["X_train"],
+        st.session_state["X_test"],
+        st.session_state["y_train"],
+        st.session_state["y_test"],
+    ) = my_train_test_split(df, st.session_state["y"], test_size=test_size)
 
-    st.write(len(X_train), len(X_test), len(y_train), len(y_test))
+    # TODO KILL
+    st.write(
+        len(st.session_state["X_train"]),
+        len(st.session_state["X_test"]),
+        len(st.session_state["y_train"]),
+        len(st.session_state["y_test"]),
+    )
 
     use_all = st.checkbox("Use all features?", value=True)
     # TODO here the encoded cat variables might cause an issue
     if use_all:
-        feat_used = X_train.columns
+        feat_used = st.session_state["X_train"].columns
     else:
         feat_used = st.multiselect(
-            "Choose the features to be included in modeling", options=X_train.columns
+            "Choose the features to be included in modeling",
+            options=st.session_state["X_train"].columns,
         )
 
-    n_features = X_train.shape[1]
+    n_features = st.session_state["X_train"].shape[1]
 
 
 with st.expander(label="Hyper-parameters"):
@@ -99,7 +124,10 @@ with st.expander(label="Hyper-parameters"):
                     min_samples_leaf=min_samples_leaf,
                     bootstrap=bootstrap,
                     n_jobs=n_jobs,
-                ).fit(X_train.loc[:, feat_used], y_train)
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
 
                 st.write(type(rf))
         else:
@@ -112,7 +140,10 @@ with st.expander(label="Hyper-parameters"):
                     min_samples_leaf=min_samples_leaf,
                     bootstrap=bootstrap,
                     n_jobs=n_jobs,
-                ).fit(X_train.loc[:, feat_used], y_train)
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
 
                 st.write(type(rf))
 
@@ -143,7 +174,10 @@ with st.expander(label="Hyper-parameters"):
                     reg_alpha=reg_alpha,
                     min_child_weight=min_child_weight,
                     scale_pos_weight=scale_pos_weight,
-                ).fit(X_train.loc[:, feat_used], y_train)
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
 
                 st.write(type(xgb))
                 st.write(xgb.evals_result)
@@ -161,7 +195,10 @@ with st.expander(label="Hyper-parameters"):
                     reg_alpha=reg_alpha,
                     min_child_weight=min_child_weight,
                     scale_pos_weight=scale_pos_weight,
-                ).fit(X_train.loc[:, feat_used], y_train)
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
 
                 st.write(type(xgb))
                 st.write(xgb.evals_result)

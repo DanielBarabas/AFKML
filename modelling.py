@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 import streamlit as st
 
 
+# TODO kill
 # TODO return np arrays instead -> faster? (csak ebben az esetben van értelme ennek az fv-nek)
 def train_test_X_y_split(df: pd.DataFrame, y_colname: str, test_ratio: float = 0.2):
     """Creates test/train and X/y split of a df
