@@ -1,3 +1,4 @@
+visions
 pandas
 streamlit
 ydata-profiling
@@ -5,3 +6,5 @@ streamlit-pandas-profiling
 altair
 missingno
 matplotlib
+scikit-learn
+xgboost
