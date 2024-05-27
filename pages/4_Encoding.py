@@ -40,3 +40,5 @@ response = AgGrid(
 
 model_df = create_model_df(response.data, st.session_state["df"], target_var, y_type)
 st.write(model_df)
+# This has the encoded features in it
+st.session_state["modeldf"] = model_df

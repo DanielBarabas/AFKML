@@ -8,6 +8,15 @@ from sklearn.preprocessing import (
 )
 import numpy as np
 
+# Are these dictionaries OK here?
+dtype_map = {"Numeric": float, "Categorical": "category"}
+dtype_map_inverse = {
+    "float64": "Numeric",
+    "category": "Categorical",
+    "object": "Categorical",
+    "int64": "Numeric",
+}
+
 
 # Not used anymore
 def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
@@ -20,7 +29,6 @@ def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
     Returns:
         pd.DataFrame: df with recasted columns
     """
-    dtype_map = {"Numeric": float, "Categorical": "category"}
     vars_recast = {var: None for var in vars_recast}
 
     # TODO add more var types: ordinal, date-time, string -> do proper encoding
@@ -33,16 +41,6 @@ def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
         df[column] = df[column].astype(dtype_map[dtype])
 
     return df
-
-
-# Are these dictionaries OK here?
-dtype_map = {"Numeric": float, "Categorical": "category"}
-dtype_map_inverse = {
-    "float64": "Numeric",
-    "category": "Categorical",
-    "object": "Categorical",
-    "int64": "Numeric",
-}
 
 
 def create_type_df(df: pd.DataFrame):
@@ -156,7 +154,8 @@ def create_model_df(
                 for col1 in df.columns
                 if dtype_map_inverse[str(df[col1].dtype)] == "Numeric"
             ]
-        ],axis=1
+        ],
+        axis=1,
     )
     for _, row in res_df.iterrows():
         encoded_col, encoded_colname = create_encoded_column(
@@ -170,6 +169,6 @@ def create_model_df(
             encoded_col.columns = [encoded_colname]
         else:
             encoded_col.columns = encoded_colname
-        
-        model_df = pd.concat([model_df, encoded_col],axis=1)
+
+        model_df = pd.concat([model_df, encoded_col], axis=1)
     return model_df
