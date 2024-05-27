@@ -1,11 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from modules_for_pages.data_wrangling import (
-    find_valid_cols,
-    find_label_type,
-    create_model_df,
-)
+from modules_for_pages.data_wrangling import create_model_df
+
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
@@ -40,3 +37,27 @@ y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
 metric_df = pd.DataFrame({"Metric": ["Mean Squared Error"], "Value": [mse]})
 st.write(metric_df)
+
+
+# Feature importance
+
+result = permutation_importance(
+    model, X_test, y_test, n_repeats=2, random_state=42, 
+    #n_jobs=4 This does not work for the regression case for some reason :D
+)
+importances = pd.Series(result.importances_mean)
+feature_importance_df = pd.DataFrame({"Feature": X.columns, "Importance": importances})
+feature_importance_df = feature_importance_df.sort_values(
+    by="Importance", ascending=False
+)
+importance_chart = (
+    alt.Chart(feature_importance_df)
+    .mark_bar()
+    .encode(
+        x=alt.X("Importance", title="Feature Importance"),
+        y=alt.Y("Feature", sort="-x", title="Feature"),
+        tooltip=["Feature", "Importance"],
+    )
+    .properties(title="Feature Importance", height=500, width=500)
+)
+st.altair_chart(importance_chart)
