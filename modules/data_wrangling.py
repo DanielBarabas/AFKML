@@ -171,4 +171,6 @@ def create_model_df(
             encoded_col.columns = encoded_colname
 
         model_df = pd.concat([model_df, encoded_col], axis=1)
+    if target_var in model_df.columns:
+        model_df = model_df.drop(target_var,axis=1)
     return model_df
