@@ -1,7 +1,6 @@
 import streamlit as st
-import pandas as pd
 import altair as alt
-from eda import (
+from modules.eda import (
     v_counts_bar_chart,
     boxplot,
     stacked_bar,

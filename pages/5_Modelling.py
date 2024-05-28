@@ -2,7 +2,7 @@ import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
-import modelling as m
+import modules.modelling as m
 
 # TODO rewrite, so not everything is run automatically
 
@@ -20,11 +20,6 @@ def my_train_test_split(X, y, test_size):
 
 
 with st.expander(label="Preparation", expanded=True):
-    st.session_state["problem_type"] = st.selectbox(
-        "Choose the type of your problem",
-        options=["Regression", "Multiclass classification", "Binary classification"],
-    )
-
     model_type = st.selectbox("Select model", options=["Random forest", "XGBoost"])
 
     test_size = st.slider(

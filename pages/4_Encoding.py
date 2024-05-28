@@ -19,6 +19,7 @@ with st.expander(label="Target variable selection", expanded=True):
         help="The target variable has to be encoded in a different way than features",
     )
 
+    # Encode target variable and specify problem type
     object_or_cat = pd.api.types.is_object_dtype(
         st.session_state["df"][target_var]
     ) or pd.api.types.is_categorical_dtype(st.session_state["df"][target_var])
@@ -29,18 +30,19 @@ with st.expander(label="Target variable selection", expanded=True):
             st.session_state["df"][target_var]
         )
         st.session_state["le"] = label_encoder
+
+        n_unique_cat = st.session_state["df"][target_var].nunique()
+        if n_unique_cat == 2:
+            st.session_state["problem_type"] = "Binary classification"
+        else:
+            st.session_state["problem_type"] = "Multiclass classification"
     else:
-        st.session_state["y"] = st.session_state["df"][target_var]
+        # cast to pd.DataFrame otherwise sklearn models doesn't run
+        st.session_state["y"] = pd.DataFrame(st.session_state["df"][target_var])
+        st.session_state["problem_type"] = "Regression"
 
-    # TODO itt kéne dropolni az y-t a df-ből -> később nem is foglalkozni vele
+    st.write(st.session_state["problem_type"])
 
-
-# TODO ez itt mi?
-"""if len(target_var) > 0:
-    target_var = target_var[0]
-else:
-    target_var = st.session_state["df"].columns.to_list()[0]
-"""
 
 encodings = ("One-Hot", "Target", "Ordinal")
 valid_cols = find_valid_cols(st.session_state["df"], target_var, dtype_map_inverse)
@@ -66,7 +68,6 @@ response = AgGrid(
 
 st.write(response.data)
 
-# TODO rename X
 st.session_state["X"] = create_model_df(
     response.data, st.session_state["df"], target_var, y_type, dtype_map_inverse
 )

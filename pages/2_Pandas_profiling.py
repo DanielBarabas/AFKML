@@ -1,6 +1,6 @@
 import ydata_profiling
 import streamlit as st
-from streamlit_pandas_profiling import st_profile_report
+from streamlit_ydata_profiling import st_profile_report
 
 st.set_page_config(page_title="Homepage", layout="wide")
 
