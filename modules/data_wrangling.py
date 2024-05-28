@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import (
-    LabelEncoder,
     OneHotEncoder,
     OrdinalEncoder,
     TargetEncoder,
@@ -9,7 +8,18 @@ from sklearn.preprocessing import (
 import numpy as np
 
 
-def create_type_df(df: pd.DataFrame, dtype_map: dict):
+def create_type_df(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
+
+    """ Creates a dataframe that assigns our variable categories (Numeric, Categorical) to each variable in the dataframe
+
+    Args: 
+        pd.DataFrame: dataframe of the data
+        dict: dictionary that assigns our categories to the possible dtypes
+
+
+    Returns:
+        pd.DataFrame: Each row is a variable in the data and our categories are assigned to each variable
+    """
     original_types = pd.DataFrame(
         {
             "Variable": df.columns.to_list(),
@@ -19,14 +29,33 @@ def create_type_df(df: pd.DataFrame, dtype_map: dict):
     return original_types
 
 
-def create_type_dict(type_df: pd.DataFrame):
+def create_type_dict(type_df: pd.DataFrame) -> dict:
+    """Creates a dictionary 
+
+    Args:
+        type_df (pd.DataFrame): 
+
+    Returns:
+        dict: Keys are the variables in the data, values are their categories (Numeric, Categorical)
+    """
     type_dict = {}
     for i in range(len(type_df)):
         type_dict[type_df.iloc[i]["Variable"]] = type_df.iloc[i]["Type"]
     return type_dict
 
 
-def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dict):
+def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dict) -> tuple:
+    """_summary_
+
+    Args:
+        df (pd.DataFrame): data
+        orig_dict (dict): previous type dictionary
+        res_dict (dict): current type dictionary
+        dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
+
+    Returns:
+        tuple: first element is the updated dataframe, second element is the new previous dictionary
+    """
     for key in res_dict.keys():
         if res_dict[key] != orig_dict[key]:
             # Cannot handle exceptions yet
@@ -38,7 +67,17 @@ def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dic
 ######################## Encoding page ##################################
 
 
-def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict):
+def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple:
+    """_summary_
+
+    Args:
+        df (pd.DataFrame): data
+        target_var (str): y
+        dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
+
+    Returns:
+        list: list of columns to encode (categorical and not target variables)
+    """
     valid_cols = [
         col
         for col in df.columns.to_list()
@@ -50,12 +89,31 @@ def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict):
 
 
 # TODO KILL?
-def find_label_type(df, target_var: str, dtype_map: dict):
+def find_label_type(df:pd.DataFrame, target_var: str, dtype_map: dict) -> str:
+    """ Returns "Numeric" or "Categorical" for the target variable. This is needed for the target encoding.
+
+    Args:
+        df (pd.DataFrame): 
+        target_var (str): y
+        dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
+
+    Returns:
+        str: "Numeric" or "Categorical"
+    """
     y_type = dtype_map[str(df[target_var].dtype)]
     return y_type
 
 
-def one_hot_encoding(df, x_column):
+def one_hot_encoding(df:pd.DataFrame, x_column:str)->tuple:
+    """Encodes one column using onehot encoding
+
+    Args:
+        df (pd.DataFrame): data
+        x_column (str): column to encode
+
+    Returns:
+        tuple: first element is the encoded column (numpy array), second element is the encoded name
+    """
     encoder = OneHotEncoder(drop="first", sparse_output=False, dtype=np.int8)
     encoded_column = encoder.fit_transform(df[x_column].values.reshape(-1, 1))
     encoded_column_name = [
@@ -63,9 +121,18 @@ def one_hot_encoding(df, x_column):
     ]
     return encoded_column, encoded_column_name
 
+def tartet_encoding(df:pd.DataFrame, x_column:str, target_column:str, coltype:str)->tuple:
+    """Encodes one column using target encoding
 
-# TODO Check if multicollinearity can be a problem here
-def tartet_encoding(df, x_column, target_column, coltype):
+    Args:
+        df (pd.DataFrame): data
+        x_column (str): variable to encode
+        target_column (str): y variable 
+        coltype (str): y type (Numeric or Categorical)
+
+    Returns:
+        tuple: first element is the encoded column (numpy array or multidimensional array in case of multiclass prediction), second element is the encoded name (or a list of them in case of multiclass prediction)
+    """
     x = df[x_column].to_numpy().reshape(-1, 1)
     if coltype == "Numeric":
         encoder = TargetEncoder(smooth="auto", target_type="continuous")
@@ -84,7 +151,16 @@ def tartet_encoding(df, x_column, target_column, coltype):
     return encoded_column, encoded_column_name
 
 
-def ordinal_encoding(df, x_column):
+def ordinal_encoding(df:pd.DataFrame, x_column:str)->tuple:
+    """Encodes one column using ordinal encoding
+
+    Args:
+        df (pd.DataFrame): data
+        x_column (str): column to encode
+
+    Returns:
+        tuple: first element is the encoded column (numpy array), second element is the encoded name
+    """
     oe = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=np.nan)
     encoded_column = oe.fit_transform(df[x_column].values.reshape(-1, 1))
     encoded_column_name = x_column + "_ordinal"
@@ -92,10 +168,19 @@ def ordinal_encoding(df, x_column):
 
 
 def create_encoded_column(
-    encoding, x_column, df, target_column="", y_type="Categorical"
-):
-    """
-    Use encoder to fit_transform the `original_colname` column and return just the encoded column.
+    encoding:str, x_column:str, df:pd.DataFrame, target_column:str, y_type:str
+)->tuple:
+    """ Encodes the given column using according to the users chosen encoding
+
+    Args:
+        encoding (str): Encoding type (One-hot, Ordinal or Target)
+        x_column (str): Variable to encode
+        df (pd.DataFrame): data
+        target_column (str): y
+        y_type (str): y type (Numeric or Categorical)
+
+    Returns:
+        tuple: first element is the encoded column (pd.DataFrame), second element is the encoded variable name
     """
     if encoding == "One-Hot":
         encoded_column, encoded_column_name = one_hot_encoding(df=df, x_column=x_column)
@@ -109,14 +194,25 @@ def create_encoded_column(
     return pd.DataFrame(encoded_column), encoded_column_name
 
 
-# TODO ez kicsit bonyolultnak tűnik, miért dropolja az y-t, nem lenne egyszerűbb nem hozzáadni
 def create_model_df(
     res_df: pd.DataFrame,
     df: pd.DataFrame,
     target_var: str,
     y_type: str,
     dtype_map: dict,
-):
+) -> pd.DataFrame:
+    """Creates the encoded X (feature) DataFrame
+
+    Args:
+        res_df (pd.DataFrame): user input (variable name, encoding type)
+        df (pd.DataFrame): data
+        target_var (str): y
+        y_type (str): y type (Numeric, Categorical)
+        dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
+
+    Returns:
+        pd.DataFrame: Encoded feature (X) DataFrame 
+    """
     model_df = pd.concat(
         [
             df[col]
@@ -136,7 +232,6 @@ def create_model_df(
             target_column=target_var,
             y_type=y_type,
         )
-        # TODO mit csinál ez az if?
         if isinstance(encoded_colname, str):
             encoded_col.columns = [encoded_colname]
         else:
