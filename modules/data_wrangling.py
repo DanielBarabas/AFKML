@@ -43,11 +43,11 @@ def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
     return df
 
 
-def create_type_df(df: pd.DataFrame):
+def create_type_df(df: pd.DataFrame, dtype_map: dict):
     original_types = pd.DataFrame(
         {
             "Variable": df.columns.to_list(),
-            "Type": [dtype_map_inverse[a] for a in [str(typ) for typ in df.dtypes]],
+            "Type": [dtype_map[a] for a in [str(typ) for typ in df.dtypes]],
         }
     )
     return original_types
@@ -60,7 +60,7 @@ def create_type_dict(type_df: pd.DataFrame):
     return type_dict
 
 
-def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict):
+def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dict):
     for key in res_dict.keys():
         if res_dict[key] != orig_dict[key]:
             # Cannot handle exceptions yet
@@ -70,6 +70,8 @@ def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict):
 
 
 ######################## Encoding page ##################################
+
+# TODO berakni paraméterként a dtype_map_inverse-et a függvényekbe, ebben modulban ne legyen változó deklarálva
 
 
 def find_valid_cols(df: pd.DataFrame, target_var: str):
@@ -143,6 +145,7 @@ def create_encoded_column(
     return pd.DataFrame(encoded_column), encoded_column_name
 
 
+# TODO pass dtype_map_inverse as a param
 def create_model_df(
     res_df: pd.DataFrame, df: pd.DataFrame, target_var: str, y_type: str
 ):
@@ -172,5 +175,5 @@ def create_model_df(
 
         model_df = pd.concat([model_df, encoded_col], axis=1)
     if target_var in model_df.columns:
-        model_df = model_df.drop(target_var,axis=1)
+        model_df = model_df.drop(target_var, axis=1)
     return model_df

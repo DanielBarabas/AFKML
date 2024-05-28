@@ -3,6 +3,16 @@ import pandas as pd
 import modules.data_wrangling as dw
 from st_aggrid import GridOptionsBuilder, AgGrid
 
+
+dtype_map = {"Numeric": float, "Categorical": "category"}
+dtype_map_inverse = {
+    "float64": "Numeric",
+    "category": "Categorical",
+    "object": "Categorical",
+    "int64": "Numeric",
+}
+
+
 st.set_page_config(page_title="Home page", layout="wide")
 st.title("Data Upload page")
 
@@ -26,18 +36,10 @@ if user_file is not None:
 
 
 if "df" in st.session_state:
-    st.write("Here are the data types of columns and the first observations")
-    # TODO sometimes dtypes in printed df doesn't refresh
-    st.write(
-        pd.concat(
-            [
-                st.session_state["df"].dtypes.rename("dtype").to_frame().T,
-                st.session_state["df"].head(5),
-            ]
-        )
-    )
+    st.write("Here is the head")
+    st.write(st.session_state["df"].head(5))
 
-    original_types = dw.create_type_df(df=st.session_state["df"])
+    original_types = dw.create_type_df(st.session_state["df"], dtype_map_inverse)
     orig_dict = dw.create_type_dict(original_types)
 
     gb = GridOptionsBuilder.from_dataframe(original_types)
@@ -56,6 +58,8 @@ if "df" in st.session_state:
 
     res_dict = dw.create_type_dict(response.data)
 
-    df, orig_dict = dw.cast_dtype(st.session_state["df"], orig_dict, res_dict)
+    df, orig_dict = dw.cast_dtype(
+        st.session_state["df"], orig_dict, res_dict, dtype_map
+    )
 
     st.write(st.session_state["df"].dtypes)

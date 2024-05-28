@@ -1,10 +1,9 @@
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
-import numpy as np
 import modelling as m
 
 # TODO töröl modelling a pages mappából
@@ -20,7 +19,7 @@ def my_train_test_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=72)
 
 
-### replace with session state df
+"""### replace with session state df
 @st.cache_data
 def load_data(path):
     df = pd.read_csv(path)
@@ -43,18 +42,27 @@ df = df.drop(columns=["sex"])
 
 st.write(df.head(10))
 #### replace up to that point
-
+"""
 
 with st.expander(label="Target variable selection", expanded=True):
-    target_var = st.selectbox("Choose the target variable", options=df.columns)
+    target_var = st.selectbox(
+        "Choose the target variable", options=st.session_state["model_df"].columns
+    )
 
-    if pd.api.types.is_categorical_dtype(df[target_var]):
+    # TODO itt jól működik az object?
+    object_or_cat = pd.api.types.is_object_dtype(
+        st.session_state["model_df"][target_var]
+    ) or pd.api.types.is_categorical_dtype(st.session_state["model_df"][target_var])
+
+    if object_or_cat:
         label_encoder = LabelEncoder()
-        st.session_state["y"] = label_encoder.fit_transform(df[target_var])
+        st.session_state["y"] = label_encoder.fit_transform(
+            st.session_state["model_df"][target_var]
+        )
     else:
-        st.session_state["y"] = df[target_var]
+        st.session_state["y"] = st.session_state["model_df"][target_var]
 
-    df.drop(columns=target_var)
+    st.session_state["model_df"].drop(columns=target_var)
 
 
 with st.expander(label="Preparation"):
@@ -79,7 +87,9 @@ with st.expander(label="Preparation"):
         st.session_state["X_test"],
         st.session_state["y_train"],
         st.session_state["y_test"],
-    ) = my_train_test_split(df, st.session_state["y"], test_size=test_size)
+    ) = my_train_test_split(
+        st.session_state["model_df"], st.session_state["y"], test_size=test_size
+    )
 
     # TODO KILL
     st.write(
@@ -205,3 +215,4 @@ with st.expander(label="Hyper-parameters"):
                 st.write(xgb.score)
 
     # TODO write out: your model is in training + time passed
+    # TODO cache the models?

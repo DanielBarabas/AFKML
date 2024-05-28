@@ -8,3 +8,4 @@ missingno
 matplotlib
 scikit-learn
 xgboost
+st_aggrid
