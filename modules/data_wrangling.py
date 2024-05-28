@@ -8,40 +8,6 @@ from sklearn.preprocessing import (
 )
 import numpy as np
 
-# Are these dictionaries OK here?
-dtype_map = {"Numeric": float, "Categorical": "category"}
-dtype_map_inverse = {
-    "float64": "Numeric",
-    "category": "Categorical",
-    "object": "Categorical",
-    "int64": "Numeric",
-}
-
-
-# Not used anymore
-def cast_dtypes(df: pd.DataFrame, vars_recast: list) -> pd.DataFrame:
-    """Recasts dtypes of df with using streamlit dropdowns menus
-
-    Args:
-        df (pd.DataFrame): df uploaded by user
-        vars_recast (list): selected variables to recast
-
-    Returns:
-        pd.DataFrame: df with recasted columns
-    """
-    vars_recast = {var: None for var in vars_recast}
-
-    # TODO add more var types: ordinal, date-time, string -> do proper encoding
-    for var in vars_recast.keys():
-        vars_recast[var] = st.selectbox(
-            f"Select dtype for {var}", ["Numeric", "Categorical"]
-        )
-
-    for column, dtype in vars_recast.items():
-        df[column] = df[column].astype(dtype_map[dtype])
-
-    return df
-
 
 def create_type_df(df: pd.DataFrame, dtype_map: dict):
     original_types = pd.DataFrame(
@@ -71,23 +37,21 @@ def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dic
 
 ######################## Encoding page ##################################
 
-# TODO berakni paraméterként a dtype_map_inverse-et a függvényekbe, ebben modulban ne legyen változó deklarálva
 
-
-def find_valid_cols(df: pd.DataFrame, target_var: str):
+def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict):
     valid_cols = [
         col
         for col in df.columns.to_list()
         if (
-            (dtype_map_inverse[str(df[col].dtype)] == "Categorical")
-            and (col not in target_var)
+            (dtype_map[str(df[col].dtype)] == "Categorical") and (col not in target_var)
         )
     ]
     return valid_cols
 
 
-def find_label_type(df, target_var: str):
-    y_type = dtype_map_inverse[str(df[target_var].dtype)]
+# TODO KILL?
+def find_label_type(df, target_var: str, dtype_map: dict):
+    y_type = dtype_map[str(df[target_var].dtype)]
     return y_type
 
 
@@ -145,9 +109,13 @@ def create_encoded_column(
     return pd.DataFrame(encoded_column), encoded_column_name
 
 
-# TODO pass dtype_map_inverse as a param
+# TODO ez kicsit bonyolultnak tűnik, miért dropolja az y-t, nem lenne egyszerűbb nem hozzáadni
 def create_model_df(
-    res_df: pd.DataFrame, df: pd.DataFrame, target_var: str, y_type: str
+    res_df: pd.DataFrame,
+    df: pd.DataFrame,
+    target_var: str,
+    y_type: str,
+    dtype_map: dict,
 ):
     model_df = pd.concat(
         [
@@ -155,7 +123,7 @@ def create_model_df(
             for col in [
                 col1
                 for col1 in df.columns
-                if dtype_map_inverse[str(df[col1].dtype)] == "Numeric"
+                if dtype_map[str(df[col1].dtype)] == "Numeric"
             ]
         ],
         axis=1,
@@ -168,7 +136,8 @@ def create_model_df(
             target_column=target_var,
             y_type=y_type,
         )
-        if type(encoded_colname) == str:
+        # TODO mit csinál ez az if?
+        if isinstance(encoded_colname, str):
             encoded_col.columns = [encoded_colname]
         else:
             encoded_col.columns = encoded_colname

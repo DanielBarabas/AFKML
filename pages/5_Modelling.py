@@ -1,13 +1,15 @@
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import modelling as m
 
 # TODO töröl modelling a pages mappából
 # TODO rewrite, so not everything is run automatically
+
+n_features = st.session_state["X"].shape[1]
+
 
 st.set_page_config(page_title="Modelling", layout="wide")
 st.title("Modelling")
@@ -44,28 +46,8 @@ st.write(df.head(10))
 #### replace up to that point
 """
 
-with st.expander(label="Target variable selection", expanded=True):
-    target_var = st.selectbox(
-        "Choose the target variable", options=st.session_state["model_df"].columns
-    )
 
-    # TODO itt jól működik az object?
-    object_or_cat = pd.api.types.is_object_dtype(
-        st.session_state["model_df"][target_var]
-    ) or pd.api.types.is_categorical_dtype(st.session_state["model_df"][target_var])
-
-    if object_or_cat:
-        label_encoder = LabelEncoder()
-        st.session_state["y"] = label_encoder.fit_transform(
-            st.session_state["model_df"][target_var]
-        )
-    else:
-        st.session_state["y"] = st.session_state["model_df"][target_var]
-
-    st.session_state["model_df"].drop(columns=target_var)
-
-
-with st.expander(label="Preparation"):
+with st.expander(label="Preparation", expanded=True):
     problem_type = st.selectbox(
         "Choose the type of your problem",
         options=["Regression", "Multi-classification", "Binary-classification"],
@@ -81,23 +63,17 @@ with st.expander(label="Preparation"):
         help="Normally test set ratio is between 0.1 and 0.3",
     )
 
-    # TODO ezt cache-elni
     (
         st.session_state["X_train"],
         st.session_state["X_test"],
         st.session_state["y_train"],
         st.session_state["y_test"],
     ) = my_train_test_split(
-        st.session_state["model_df"], st.session_state["y"], test_size=test_size
+        st.session_state["X"], st.session_state["y"], test_size=test_size
     )
 
-    # TODO KILL
-    st.write(
-        len(st.session_state["X_train"]),
-        len(st.session_state["X_test"]),
-        len(st.session_state["y_train"]),
-        len(st.session_state["y_test"]),
-    )
+    st.write("Number of rows in training set", len(st.session_state["X_train"]))
+    st.write("Number of rows in test set", len(st.session_state["X_test"]))
 
     use_all = st.checkbox("Use all features?", value=True)
     # TODO here the encoded cat variables might cause an issue
@@ -108,8 +84,6 @@ with st.expander(label="Preparation"):
             "Choose the features to be included in modeling",
             options=st.session_state["X_train"].columns,
         )
-
-    n_features = st.session_state["X_train"].shape[1]
 
 
 with st.expander(label="Hyper-parameters"):
