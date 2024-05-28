@@ -28,6 +28,7 @@ with st.expander(label="Target variable selection", expanded=True):
         st.session_state["y"] = label_encoder.fit_transform(
             st.session_state["df"][target_var]
         )
+        st.session_state["le"] = label_encoder
     else:
         st.session_state["y"] = st.session_state["df"][target_var]
 

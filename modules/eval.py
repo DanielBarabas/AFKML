@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from xgboost import XGBClassifier, XGBRegressor
-from modules_for_pages.data_wrangling import (
+from modules.data_wrangling import (
     create_model_df,
 )
 from sklearn.model_selection import train_test_split

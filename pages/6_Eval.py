@@ -1,12 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from modules_for_pages.data_wrangling import (
-    find_valid_cols,
-    find_label_type,
-    create_model_df,
-)
-from sklearn.model_selection import train_test_split
+from modules_for_pages.eval import preproc
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import (
     roc_curve,
@@ -18,30 +12,12 @@ from sklearn.metrics import (
     mean_squared_error,
 )
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import (
-    OneHotEncoder,
-    OrdinalEncoder,
-    TargetEncoder,
-    LabelEncoder,
-)
+
 import altair as alt
 
-## Ezek a dolgok máshol történnek, de ide is kellenek a teszteléshez
-
-df = pd.read_csv(
-    "C:\Projects\Rajk\prog_2\project\prog_machine_project\data\drinking.csv"
-)
-res_df = pd.DataFrame({"Variable": ["sex"], "Encoding": ["One-Hot"]})
-X = create_model_df(res_df, df, "DRK_YN", "Categorical")
-le = LabelEncoder()
-y = le.fit_transform(df["DRK_YN"])
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-model = DecisionTreeClassifier(max_depth=5, random_state=42)
-model.fit(X_train, y_train)
-y_pred = model.predict_proba(X_test)
-y_pred_binary = model.predict(X_test)
+#This will be replaced with session state variables
+model,y_pred,y_pred_binary,X_test,y_test = preproc()
+st.write(y_test)
 
 # ROC
 y_pred1 = [y[1] for y in y_pred]
