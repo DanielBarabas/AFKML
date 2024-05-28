@@ -79,16 +79,16 @@ def preproc(problem_type):
 
     return (model, y_pred, y_pred_binary, X_test, y_test, le)
 
-def predict1(model,X_test,problem_type):
+
+def predict1(model, X_test, problem_type):
     if problem_type == "Regression":
         y_pred = model.predict(X_test)
-        y_pred_binary = y_pred
+        y_pred_binary = "anyad"
     else:
         y_pred = model.predict_proba(X_test)
         y_pred_binary = model.predict(X_test)
-    
-    return y_pred, y_pred_binary
 
+    return y_pred, y_pred_binary
 
 
 ############################ Binary Case ####################################
