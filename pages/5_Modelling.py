@@ -1,11 +1,9 @@
 import streamlit as st
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import modelling as m
 
-# TODO töröl modelling a pages mappából
 # TODO rewrite, so not everything is run automatically
 
 n_features = st.session_state["X"].shape[1]
@@ -21,36 +19,10 @@ def my_train_test_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=72)
 
 
-"""### replace with session state df
-@st.cache_data
-def load_data(path):
-    df = pd.read_csv(path)
-    df[["sex", "DRK_YN"]] = df[["sex", "DRK_YN"]].astype("category")
-    return df
-
-
-df = load_data(
-    "C:/Users/aronn/OneDrive/Asztali gép/Rajk/Prog 2/prog_machine_project/data/smoking_drinking.csv"
-)
-
-oh_enc = OneHotEncoder(drop="first", sparse_output=False, dtype=np.int8)
-
-df_ = pd.DataFrame(oh_enc.fit_transform(df[["sex"]].values.reshape(-1, 1)))
-df_colnames_oh = [str(f) for f in oh_enc.categories_[0][1:]]
-df_.columns = df_colnames_oh
-df = df_.join(df)
-
-df = df.drop(columns=["sex"])
-
-st.write(df.head(10))
-#### replace up to that point
-"""
-
-
 with st.expander(label="Preparation", expanded=True):
-    problem_type = st.selectbox(
+    st.session_state["problem_type"] = st.selectbox(
         "Choose the type of your problem",
-        options=["Regression", "Multi-classification", "Binary-classification"],
+        options=["Regression", "Multiclass classification", "Binary classification"],
     )
 
     model_type = st.selectbox("Select model", options=["Random forest", "XGBoost"])
@@ -86,7 +58,7 @@ with st.expander(label="Preparation", expanded=True):
         )
 
 
-with st.expander(label="Hyper-parameters"):
+with st.expander(label="Hyperparameters"):
     if model_type == "Random forest":
         (
             n_estimators,
@@ -98,9 +70,9 @@ with st.expander(label="Hyper-parameters"):
             n_jobs,
         ) = m.rf_param_input(n_features)
 
-        if problem_type == "Regression":
+        if st.session_state["problem_type"] == "Regression":
             if st.button("Run model", key="rfr"):
-                rf = RandomForestRegressor(
+                st.session_state["model"] = RandomForestRegressor(
                     n_estimators=n_estimators,
                     max_depth=max_depth,
                     max_features=max_features,
@@ -113,10 +85,10 @@ with st.expander(label="Hyper-parameters"):
                     st.session_state["y_train"],
                 )
 
-                st.write(type(rf))
+                st.write(type(st.session_state["model"]))
         else:
             if st.button("Run model", key="rfc"):
-                rf = RandomForestClassifier(
+                st.session_state["model"] = RandomForestClassifier(
                     n_estimators=n_estimators,
                     max_depth=max_depth,
                     max_features=max_features,
@@ -129,7 +101,7 @@ with st.expander(label="Hyper-parameters"):
                     st.session_state["y_train"],
                 )
 
-                st.write(type(rf))
+                st.write(type(st.session_state["model"]))
 
     elif model_type == "XGBoost":
         (
@@ -145,9 +117,9 @@ with st.expander(label="Hyper-parameters"):
             scale_pos_weight,
         ) = m.xbg_param_input()
 
-        if problem_type == "Regression":
+        if st.session_state["problem_type"] == "Regression":
             if st.button("Run model", key="xgbr"):
-                xgb = XGBRegressor(
+                st.session_state["model"] = XGBRegressor(
                     n_estimators=n_estimators,
                     max_depth=max_depth,
                     learning_rate=learning_rate,
@@ -163,12 +135,12 @@ with st.expander(label="Hyper-parameters"):
                     st.session_state["y_train"],
                 )
 
-                st.write(type(xgb))
-                st.write(xgb.evals_result)
-                st.write(xgb.score)
+                st.write(type(st.session_state["model"]))
+                st.write(st.session_state["model"].evals_result)
+                st.write(st.session_state["model"].score)
         else:
             if st.button("Run model", key="xgbc"):
-                xgb = XGBClassifier(
+                st.session_state["model"] = XGBClassifier(
                     n_estimators=n_estimators,
                     max_depth=max_depth,
                     learning_rate=learning_rate,
@@ -184,9 +156,9 @@ with st.expander(label="Hyper-parameters"):
                     st.session_state["y_train"],
                 )
 
-                st.write(type(xgb))
-                st.write(xgb.evals_result)
-                st.write(xgb.score)
+                st.write(type(st.session_state["model"]))
+                st.write(st.session_state["model"].evals_result)
+                st.write(st.session_state["model"].score)
 
     # TODO write out: your model is in training + time passed
     # TODO cache the models?

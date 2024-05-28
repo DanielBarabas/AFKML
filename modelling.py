@@ -3,45 +3,14 @@ from sklearn.model_selection import train_test_split
 import streamlit as st
 
 
-# TODO kill
-# TODO return np arrays instead -> faster? (csak ebben az esetben van értelme ennek az fv-nek)
-def train_test_X_y_split(df: pd.DataFrame, y_colname: str, test_ratio: float = 0.2):
-    """Creates test/train and X/y split of a df
-
-    Args:
-        df (pd.DataFrame): your data frame
-        y_colname (str): name of target variable
-        test_ratio (float, optional): ratio of test set. Defaults to 0.2.
-
-    Returns:
-        X_train, X_test, y_train, y_test (pd.DataFrame): test/train split and X/y split dfs
-    """
-    retlist = train_test_split(
-        df.drop(y_colname, axis=1),
-        df[y_colname],
-        test_size=test_ratio,
-        random_state=72,
-    )
-
-    return [
-        (
-            pd.DataFrame(f, columns=[f for f in df.columns if not f == y_colname])
-            if i < 2
-            else pd.DataFrame(f, columns=[y_colname])
-        )
-        for i, f in enumerate(retlist)
-    ]
-
-
-# TODO mások a paraméterek regressziónál
-def rf_param_input(n_features):
+def rf_param_input(n_features) -> tuple:
     """Gives ui to specify the parameters of random forest
 
     Args:
         n_features (int): number of features
 
     Returns:
-        tuple: specified parameter values
+        tuple: specified hyperparameter values
     """
     n_estimators = st.slider("n_estimators", min_value=10, max_value=1000, value=100)
     max_depth = st.radio(
@@ -82,7 +51,12 @@ def rf_param_input(n_features):
     )
 
 
-def xbg_param_input():
+def xbg_param_input() -> tuple:
+    """Gives ui to specify the parameters of xgboost
+
+    Returns:
+        tuple: specified parameter values
+    """
     n_estimators = st.slider("n_estimators", min_value=10, max_value=1000, value=100)
     max_depth = st.slider("max_depth", min_value=0, max_value=15, value=6)
     learning_rate = st.slider(
