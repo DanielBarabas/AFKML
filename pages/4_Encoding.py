@@ -18,6 +18,7 @@ with st.expander(label="Target variable selection", expanded=True):
         st.session_state["df"].columns.to_list(),
         help="The target variable has to be encoded in a different way than features",
     )
+    st.session_state["y_colname"] = target_var
 
     # Encode target variable and specify problem type
     object_or_cat = pd.api.types.is_object_dtype(
@@ -34,12 +35,15 @@ with st.expander(label="Target variable selection", expanded=True):
         n_unique_cat = st.session_state["df"][target_var].nunique()
         if n_unique_cat == 2:
             st.session_state["problem_type"] = "Binary classification"
+            st.session_state["y_type"] = "categorical with two categories"
         else:
             st.session_state["problem_type"] = "Multiclass classification"
+            st.session_state["y_type"] = "categorical with multiple categories"
     else:
         # cast to pd.DataFrame otherwise sklearn models doesn't run
         st.session_state["y"] = pd.DataFrame(st.session_state["df"][target_var])
         st.session_state["problem_type"] = "Regression"
+        st.session_state["y_type"] = "numeric"
 
     st.write(st.session_state["problem_type"])
 

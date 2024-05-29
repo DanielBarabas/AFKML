@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import modules.modelling as m
 
+
 # TODO rewrite, so not everything is run automatically
 
 n_features = st.session_state["X"].shape[1]
@@ -13,6 +14,7 @@ st.set_page_config(page_title="Modelling", layout="wide")
 st.title("Modelling")
 
 
+# TODO itt kell a caching ha session state-be rakjuk?
 # Define own function only for caching
 @st.cache_data
 def my_train_test_split(X, y, test_size):
@@ -20,6 +22,10 @@ def my_train_test_split(X, y, test_size):
 
 
 with st.expander(label="Preparation", expanded=True):
+    st.write(
+        f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
+    )
+
     model_type = st.selectbox("Select model", options=["Random forest", "XGBoost"])
 
     test_size = st.slider(
