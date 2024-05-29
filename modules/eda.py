@@ -26,11 +26,11 @@ def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
 
 def stacked_bar(df, chosen_features):
     fig = (
-        alt.Chart(df)
+        alt.Chart(df.sample(n = 10_000).groupby(chosen_features).size().reset_index(name='Count'))
         .mark_bar()
         .encode(
-            x=alt.X("count()").stack("normalize"),
-            y=chosen_features[0],
+            x=alt.X("Count",stack="normalize"),
+            y=f"{chosen_features[0]}:N",
             color=chosen_features[1],
         )
     )
@@ -39,19 +39,22 @@ def stacked_bar(df, chosen_features):
 
 def boxplot(df, chosen_features):
     fig = (
-        alt.Chart(df)
+        alt.Chart(df.sample(n = 10_000))
         .mark_boxplot(extent="min-max")
         .encode(
-            alt.X(f"{chosen_features[0]}:Q").scale(zero=False),
-            alt.Y(f"{chosen_features[1]}:N"),
-        )
+            
+            alt.X(f"{chosen_features[1]}:O",scale=alt.Scale(padding=0)),
+            alt.Y(f"{chosen_features[0]}:Q",scale=alt.Scale(padding=0)),
+        ).configure_boxplot(
+        size=20
+    )
     )
     return fig
 
 
 def scatter(df, chosen_features):
     fig = (
-        alt.Chart(df)
+        alt.Chart(df.sample(n = 10_000))
         .mark_circle(size=60)
         .encode(alt.X(f"{chosen_features[0]}:Q"), alt.Y(f"{chosen_features[1]}:Q"))
     )
