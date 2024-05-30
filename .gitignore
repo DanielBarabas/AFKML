@@ -3,3 +3,4 @@
 test_notebook.ipynb
 test_alcohol.ipynb
 *__pycache__
+/auth
