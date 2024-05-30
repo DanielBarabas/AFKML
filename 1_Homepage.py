@@ -61,5 +61,3 @@ if "df" in st.session_state:
     df, orig_dict = dw.cast_dtype(
         st.session_state["df"], orig_dict, res_dict, dtype_map
     )
-
-    st.write(st.session_state["df"].dtypes)
