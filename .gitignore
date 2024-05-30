@@ -2,4 +2,6 @@
 /__pycache__
 test_notebook.ipynb
 test_alcohol.ipynb
+test_airbnb.ipynb
+ch16-airbnb-prepare-london.ipynb
 *__pycache__
