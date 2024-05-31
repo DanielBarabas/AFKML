@@ -58,9 +58,10 @@ if "df" in st.session_state:
     )
 
     res_dict = dw.create_type_dict(response.data)
+    try:
+        df, orig_dict = dw.cast_dtype(
+            st.session_state["df"], orig_dict, res_dict, dtype_map
+        )
+    except:
+        st.write("Not a valid type!")
 
-    df, orig_dict = dw.cast_dtype(
-        st.session_state["df"], orig_dict, res_dict, dtype_map
-    )
-
-st.write(df.dtypes)
