@@ -46,7 +46,9 @@ with st.expander(label="Target variable selection", expanded=True):
         st.session_state["problem_type"] = "Regression"
         st.session_state["y_type"] = "numeric"
 
-    st.write(st.session_state["problem_type"])
+    st.write(
+        f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
+    )
 
 
 encodings = ("One-Hot", "Target", "Ordinal")
