@@ -7,6 +7,13 @@ import matplotlib.patches as mpatches
 
 # TODO plots take ages to create on data of ~1M rows -> look for better vis options?
 # TODO docstring for all the functions, at least input/output description
+
+def sample_check(df:pd.DataFrame) -> pd.DataFrame:
+    if df.shape[0]>10_000:
+        return df.sample(n = 10_000)
+    else:
+        return df
+
 def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
     """Creates boxplot of value counts of a categorical variable
 
@@ -23,10 +30,9 @@ def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
 
     return fig
 
-
 def stacked_bar(df, chosen_features):
     fig = (
-        alt.Chart(df.sample(n = 10_000).groupby(chosen_features).size().reset_index(name='Count'))
+        alt.Chart(sample_check(df).groupby(chosen_features).size().reset_index(name='Count'))
         .mark_bar()
         .encode(
             x=alt.X("Count",stack="normalize"),
@@ -39,7 +45,7 @@ def stacked_bar(df, chosen_features):
 
 def boxplot(df, chosen_features):
     fig = (
-        alt.Chart(df.sample(n = 10_000))
+        alt.Chart(sample_check(df))
         .mark_boxplot(extent="min-max")
         .encode(
             
@@ -54,7 +60,7 @@ def boxplot(df, chosen_features):
 
 def scatter(df, chosen_features):
     fig = (
-        alt.Chart(df.sample(n = 10_000))
+        alt.Chart(sample_check(df))
         .mark_circle(size=60)
         .encode(alt.X(f"{chosen_features[0]}:Q"), alt.Y(f"{chosen_features[1]}:Q"))
     )

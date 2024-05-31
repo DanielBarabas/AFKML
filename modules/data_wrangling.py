@@ -244,3 +244,12 @@ def create_model_df(
     if target_var in model_df.columns:
         model_df = model_df.drop(target_var, axis=1)
     return model_df
+
+############################# EDA ############################################
+def cast_date_to_timestamp(df:pd.DataFrame):
+    for col in df.columns:
+        if df[col].dtype == "datetime64[ns]":
+            df[col] = df[col].astype("int64")
+    return df
+
+

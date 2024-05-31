@@ -9,10 +9,12 @@ from modules.eda import (
     cor_matrix,
     missing_value_plot,
 )
+from modules.data_wrangling import cast_date_to_timestamp
 
 st.set_page_config(page_title="Exploratory data analysis", layout="wide")
 st.title("Exploratory data analysis")
 alt.data_transformers.disable_max_rows()
+st.session_state["df"] = cast_date_to_timestamp(st.session_state["df"])
 
 dtype_map_inverse = {
     "float64": "Numeric",
