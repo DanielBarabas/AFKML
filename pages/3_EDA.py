@@ -39,22 +39,20 @@ def update_df(df):
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def show_desc_table(df, desc_switch):
-    if desc_switch:
-        st.write(desc_table(df))
+def show_desc_table(df):
+    st.write(desc_table(df))
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def show_vcount_bar_chart(df, selected_cat, vc_switch):
-    if vc_switch:
-        st.altair_chart(
-            v_counts_bar_chart(df, selected_cat, vc_switch), use_container_width=True
-        )
+def show_vcount_bar_chart(df, selected_cat):
+    st.altair_chart(
+        v_counts_bar_chart(df, selected_cat, vc_switch), use_container_width=True
+    )
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def show_ass_chart(df, options, switch):
-    if len(options) == 2 and switch:
+def show_ass_chart(df, options):
+    if len(options) == 2 :
         st.write(
             str(df[options[0]].dtype),
             str(df[options[1]].dtype),
@@ -84,15 +82,13 @@ def show_ass_chart(df, options, switch):
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def show_cor_matrix(df, corr_switch):
-    if corr_switch:
-        st.altair_chart(cor_matrix(df), use_container_width=True)
+def show_cor_matrix(df):
+    st.altair_chart(cor_matrix(df), use_container_width=True)
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def show_missing_value_plot(df, missing_switch):
-    if missing_switch:
-        st.pyplot(missing_value_plot(df))
+def show_missing_value_plot(df):
+    st.pyplot(missing_value_plot(df))
 
 
 st.session_state["df"] = update_df(st.session_state["df"])
@@ -110,8 +106,8 @@ dtype_map_inverse = {
 # TODO add differing "key" param to buttons -> so that they can have the same name
 st.header("Descriptive Table")
 desc_switch = st.toggle(label="Create descriptive statistics")
-
-show_desc_table(st.session_state["df"], desc_switch)
+if desc_switch: 
+    show_desc_table(st.session_state["df"])
 # TODO not just object but category dtype as well!
 st.header("Distribution of Categorical variables")
 
@@ -121,9 +117,8 @@ selected_cat = st.selectbox(
 )
 
 vc_switch = st.toggle(label="Create value counts chart", value=False)
-
-
-show_vcount_bar_chart(st.session_state["df"], selected_cat, vc_switch)
+if vc_switch:
+    show_vcount_bar_chart(st.session_state["df"], selected_cat)
 
 
 st.header("Association Figures")
@@ -134,17 +129,16 @@ options = st.multiselect(
     max_selections=2,
 )
 switch_ass = st.toggle(label="Create association figure")
-
-
-show_ass_chart(st.session_state["df"], options, switch_ass)
+if switch_ass:
+    show_ass_chart(st.session_state["df"], options)
 
 
 st.header("Correlation Matrix")
 corr_switch = st.toggle(label="Create correlation matrix")
-
-show_cor_matrix(st.session_state["df"], corr_switch)
+if corr_switch:
+    show_cor_matrix(st.session_state["df"])
 
 st.header("Missing Values")
 missing_switch = st.toggle(label="Create missing values chart")
-
-show_missing_value_plot(st.session_state["df"], missing_switch)
+if missing_switch:
+    show_missing_value_plot(st.session_state["df"])
