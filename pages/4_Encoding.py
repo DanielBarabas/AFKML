@@ -10,6 +10,7 @@ dtype_map_inverse = {
     "category": "Categorical",
     "object": "Categorical",
     "int64": "Numeric",
+    "datetime64[ns]":"Date"
 }
 
 with st.expander(label="Target variable selection", expanded=True):
