@@ -1,6 +1,7 @@
 import streamlit as st
 import altair as alt
-from streamlit_extras.stateful_button import button
+import pandas as pd
+
 from modules.eda import (
     v_counts_bar_chart,
     boxplot,
@@ -8,6 +9,7 @@ from modules.eda import (
     scatter,
     cor_matrix,
     missing_value_plot,
+    desc_table
 )
 from modules.data_wrangling import cast_date_to_timestamp
 
@@ -22,7 +24,78 @@ if "df" not in st.session_state:
 
 st.title("Exploratory data analysis")
 alt.data_transformers.disable_max_rows()
-st.session_state["df"] = cast_date_to_timestamp(st.session_state["df"])
+
+
+### Cached functions
+
+@st.cache_data
+def get_cat_options(df):
+    cat_options = df.select_dtypes(include="object").columns.tolist()
+    return cat_options
+
+@st.cache_data
+def update_df(df):
+    return cast_date_to_timestamp(df)
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def show_desc_table(df, desc_switch):
+    if desc_switch:
+        st.write(desc_table(df))
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def show_vcount_bar_chart(df, selected_cat, vc_switch):
+    if vc_switch:
+        st.altair_chart(
+            v_counts_bar_chart(df, selected_cat, vc_switch), use_container_width=True
+        )
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def show_ass_chart(df, options, switch):
+    if len(options) == 2 and switch:
+        st.write(
+            str(df[options[0]].dtype),
+            str(df[options[1]].dtype),
+        )
+
+        # Both category:
+        if (
+            dtype_map_inverse[str(df[options[0]].dtype)]
+            == dtype_map_inverse[str(df[options[1]].dtype)]
+            == "Categorical"
+        ):
+            st.write("Both Cat")
+            fig = stacked_bar(df, options)
+        # Both continous:
+        elif (
+            dtype_map_inverse[str(df[options[0]].dtype)]
+            == dtype_map_inverse[str(df[options[1]].dtype)]
+            == "Numeric"
+        ):
+            st.write("Both Cont")
+            fig = scatter(df, options)
+        # One is continous, other is not:
+        else:
+            st.write("Mixed")
+            fig = boxplot(df, options)
+        st.altair_chart(fig, use_container_width=True)
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def show_cor_matrix(df, corr_switch):
+    if corr_switch:
+        st.altair_chart(cor_matrix(df), use_container_width=True)
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def show_missing_value_plot(df, missing_switch):
+    if missing_switch:
+        st.pyplot(missing_value_plot(df))
+
+
+st.session_state["df"] = update_df(st.session_state["df"])
 
 dtype_map_inverse = {
     "float64": "Numeric",
@@ -31,67 +104,47 @@ dtype_map_inverse = {
     "int64": "Numeric",
 }
 
+######### Content ##########
+
 
 # TODO add differing "key" param to buttons -> so that they can have the same name
-with st.expander(label="Descriptive Statistics"):
-    if button(label="Create descriptive statistics", key="desc_stat"):
-        st.write(st.session_state["df"].describe())
+st.header("Descriptive Table")
+desc_switch = st.toggle(label="Create descriptive statistics")
 
+show_desc_table(st.session_state["df"], desc_switch)
 # TODO not just object but category dtype as well!
-with st.expander(label="Value counts for categorical data"):
-    cat_options = (
-        st.session_state["df"].select_dtypes(include="object").columns.tolist()
-    )
-    selected_cat = st.selectbox("Select categorical variable", cat_options)
-    if button(label="Create value counts chart", key="v_counts"):
-        v_counts = st.session_state["df"].value_counts(selected_cat)
+st.header("Distribution of Categorical variables")
 
-        fig = v_counts_bar_chart(v_counts)
-        st.altair_chart(fig, use_container_width=True)
+cat_options = get_cat_options(st.session_state["df"])
+selected_cat = st.selectbox(
+    "Select categorical variable", cat_options
+)
+
+vc_switch = st.toggle(label="Create value counts chart", value=False)
 
 
-with st.expander(label="Association Figures"):
-    options = st.multiselect(
-        label="Choose the desired colums",
-        options=st.session_state["df"].columns,
-        default=st.session_state["df"].columns[[1, 2]].to_list(),
-        max_selections=2,
-    )
-    st.write(
-        str(st.session_state["df"][options[0]].dtype),
-        str(st.session_state["df"][options[1]].dtype),
-    )
-    if len(options) == 2 and button(label="Create association figure", key="ass"):
-        # Both category:
-        if (
-            dtype_map_inverse[str(st.session_state["df"][options[0]].dtype)]
-            == dtype_map_inverse[str(st.session_state["df"][options[1]].dtype)]
-            == "Categorical"
-        ):
-            st.write("Both Cat")
-            fig = stacked_bar(st.session_state["df"], options)
-        # Both continous:
-        elif (
-            dtype_map_inverse[str(st.session_state["df"][options[0]].dtype)]
-            == dtype_map_inverse[str(st.session_state["df"][options[1]].dtype)]
-            == "Numeric"
-        ):
-            st.write("Both Cont")
-            fig = scatter(st.session_state["df"], options)
-        # One is continous, other is not:
-        else:
-            st.write("Mixed")
-            fig = boxplot(st.session_state["df"], options)
-        st.altair_chart(fig, use_container_width=True)
+show_vcount_bar_chart(st.session_state["df"], selected_cat, vc_switch)
 
 
-with st.expander(label="Correlation Matrix"):
-    if button(label="Create correlation matrix", key="corr"):
-        fig = cor_matrix(st.session_state["df"])
-        st.altair_chart(fig, use_container_width=True)
+st.header("Association Figures")
+options = st.multiselect(
+    label="Choose the desired colums",
+    options=st.session_state["df"].columns,
+    default=st.session_state["df"].columns[[1, 2]].to_list(),
+    max_selections=2,
+)
+switch_ass = st.toggle(label="Create association figure")
 
 
-with st.expander(label="Missing Values"):
-    if button(label="Create missing values chart", key="missing"):
-        fig = missing_value_plot(st.session_state["df"])
-        st.pyplot(fig)
+show_ass_chart(st.session_state["df"], options, switch_ass)
+
+
+st.header("Correlation Matrix")
+corr_switch = st.toggle(label="Create correlation matrix")
+
+show_cor_matrix(st.session_state["df"], corr_switch)
+
+st.header("Missing Values")
+missing_switch = st.toggle(label="Create missing values chart")
+
+show_missing_value_plot(st.session_state["df"], missing_switch)

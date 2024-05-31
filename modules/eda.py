@@ -3,18 +3,29 @@ import pandas as pd
 import missingno as msno
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import streamlit as st
 
 
 # TODO plots take ages to create on data of ~1M rows -> look for better vis options?
 # TODO docstring for all the functions, at least input/output description
-
-def sample_check(df:pd.DataFrame) -> pd.DataFrame:
-    if df.shape[0]>10_000:
-        return df.sample(n = 10_000)
+@st.cache_data
+def sample_check(df: pd.DataFrame) -> pd.DataFrame:
+    if df.shape[0] > 10_000:
+        return df.sample(n=10_000)
     else:
         return df
 
-def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
+
+
+@st.cache_resource
+def desc_table(df: pd.DataFrame):
+    return df.describe()
+
+
+@st.cache_resource
+def v_counts_bar_chart(
+    df: pd.DataFrame, selected_cat: str, vc_switch: bool
+) -> alt.Chart:
     """Creates boxplot of value counts of a categorical variable
 
     Args:
@@ -23,19 +34,24 @@ def v_counts_bar_chart(v_counts: pd.Series) -> alt.Chart:
     Returns:
         alt.Chart: Value counts bar plot
     """
+
+    v_counts = df.value_counts(selected_cat)
     df = v_counts.reset_index()
     df.columns = ["category", "count"]
 
     fig = alt.Chart(df).mark_bar().encode(x="category:N", y="count:Q")
-
     return fig
 
+
+@st.cache_resource
 def stacked_bar(df, chosen_features):
     fig = (
-        alt.Chart(sample_check(df).groupby(chosen_features).size().reset_index(name='Count'))
+        alt.Chart(
+            sample_check(df).groupby(chosen_features).size().reset_index(name="Count")
+        )
         .mark_bar()
         .encode(
-            x=alt.X("Count",stack="normalize"),
+            x=alt.X("Count", stack="normalize"),
             y=f"{chosen_features[0]}:N",
             color=chosen_features[1],
         )
@@ -43,21 +59,21 @@ def stacked_bar(df, chosen_features):
     return fig
 
 
+@st.cache_resource
 def boxplot(df, chosen_features):
     fig = (
         alt.Chart(sample_check(df))
         .mark_boxplot(extent="min-max")
         .encode(
-            
-            alt.X(f"{chosen_features[1]}:O",scale=alt.Scale(padding=0)),
-            alt.Y(f"{chosen_features[0]}:Q",scale=alt.Scale(padding=0)),
-        ).configure_boxplot(
-        size=20
-    )
+            alt.X(f"{chosen_features[1]}:O", scale=alt.Scale(padding=0)),
+            alt.Y(f"{chosen_features[0]}:Q", scale=alt.Scale(padding=0)),
+        )
+        .configure_boxplot(size=20)
     )
     return fig
 
 
+@st.cache_resource
 def scatter(df, chosen_features):
     fig = (
         alt.Chart(sample_check(df))
@@ -66,7 +82,7 @@ def scatter(df, chosen_features):
     )
     return fig
 
-
+@st.cache_resource
 def cor_matrix(df):
     n = len(df.select_dtypes(include=["int64", "float64"]).columns)
     df = (
@@ -95,7 +111,7 @@ def cor_matrix(df):
     else:
         return cor_plot + text
 
-
+@st.cache_resource
 def missing_value_plot(df):
     fig, ax = plt.subplots()
     msno.matrix(

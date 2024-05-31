@@ -5,6 +5,7 @@ from sklearn.preprocessing import (
     TargetEncoder,
 )
 import numpy as np
+import streamlit as st
 
 
 def create_type_df(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
@@ -250,6 +251,7 @@ def create_model_df(
 
 
 ############################# EDA ############################################
+@st.cache_data
 def cast_date_to_timestamp(df: pd.DataFrame):
     for col in df.columns:
         if df[col].dtype == "datetime64[ns]":
