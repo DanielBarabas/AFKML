@@ -10,8 +10,20 @@ dtype_map_inverse = {
     "category": "Categorical",
     "object": "Categorical",
     "int64": "Numeric",
-    "datetime64[ns]":"Date"
+    "datetime64[ns]": "Date",
 }
+
+
+st.set_page_config(page_title="Encoding", layout="wide")
+
+# Don't run until no data is uploaded
+if "df" not in st.session_state:
+    st.write("First upload some data on the homepage")
+    st.stop()
+
+
+st.title("Encode variables")
+
 
 with st.expander(label="Target variable selection", expanded=True):
     target_var = st.selectbox(

@@ -9,10 +9,9 @@ import numpy as np
 
 
 def create_type_df(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
+    """Creates a dataframe that assigns our variable categories (Numeric, Categorical) to each variable in the dataframe
 
-    """ Creates a dataframe that assigns our variable categories (Numeric, Categorical) to each variable in the dataframe
-
-    Args: 
+    Args:
         pd.DataFrame: dataframe of the data
         dict: dictionary that assigns our categories to the possible dtypes
 
@@ -30,10 +29,10 @@ def create_type_df(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
 
 
 def create_type_dict(type_df: pd.DataFrame) -> dict:
-    """Creates a dictionary 
+    """Creates a dictionary
 
     Args:
-        type_df (pd.DataFrame): 
+        type_df (pd.DataFrame):
 
     Returns:
         dict: Keys are the variables in the data, values are their categories (Numeric, Categorical)
@@ -44,7 +43,9 @@ def create_type_dict(type_df: pd.DataFrame) -> dict:
     return type_dict
 
 
-def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dict) -> tuple:
+def cast_dtype(
+    df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dict
+) -> tuple:
     """_summary_
 
     Args:
@@ -92,11 +93,11 @@ def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple
 
 
 # TODO KILL?
-def find_label_type(df:pd.DataFrame, target_var: str, dtype_map: dict) -> str:
-    """ Returns "Numeric" or "Categorical" for the target variable. This is needed for the target encoding.
+def find_label_type(df: pd.DataFrame, target_var: str, dtype_map: dict) -> str:
+    """Returns "Numeric" or "Categorical" for the target variable. This is needed for the target encoding.
 
     Args:
-        df (pd.DataFrame): 
+        df (pd.DataFrame):
         target_var (str): y
         dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
 
@@ -107,7 +108,7 @@ def find_label_type(df:pd.DataFrame, target_var: str, dtype_map: dict) -> str:
     return y_type
 
 
-def one_hot_encoding(df:pd.DataFrame, x_column:str)->tuple:
+def one_hot_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     """Encodes one column using onehot encoding
 
     Args:
@@ -124,13 +125,16 @@ def one_hot_encoding(df:pd.DataFrame, x_column:str)->tuple:
     ]
     return encoded_column, encoded_column_name
 
-def tartet_encoding(df:pd.DataFrame, x_column:str, target_column:str, coltype:str)->tuple:
+
+def tartet_encoding(
+    df: pd.DataFrame, x_column: str, target_column: str, coltype: str
+) -> tuple:
     """Encodes one column using target encoding
 
     Args:
         df (pd.DataFrame): data
         x_column (str): variable to encode
-        target_column (str): y variable 
+        target_column (str): y variable
         coltype (str): y type (Numeric or Categorical)
 
     Returns:
@@ -154,7 +158,7 @@ def tartet_encoding(df:pd.DataFrame, x_column:str, target_column:str, coltype:st
     return encoded_column, encoded_column_name
 
 
-def ordinal_encoding(df:pd.DataFrame, x_column:str)->tuple:
+def ordinal_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     """Encodes one column using ordinal encoding
 
     Args:
@@ -171,9 +175,9 @@ def ordinal_encoding(df:pd.DataFrame, x_column:str)->tuple:
 
 
 def create_encoded_column(
-    encoding:str, x_column:str, df:pd.DataFrame, target_column:str, y_type:str
-)->tuple:
-    """ Encodes the given column using according to the users chosen encoding
+    encoding: str, x_column: str, df: pd.DataFrame, target_column: str, y_type: str
+) -> tuple:
+    """Encodes the given column using according to the users chosen encoding
 
     Args:
         encoding (str): Encoding type (One-hot, Ordinal or Target)
@@ -214,7 +218,7 @@ def create_model_df(
         dtype_map (dict): maps dtypes to our types (Numeric, Categorical)
 
     Returns:
-        pd.DataFrame: Encoded feature (X) DataFrame 
+        pd.DataFrame: Encoded feature (X) DataFrame
     """
     model_df = pd.concat(
         [
@@ -245,11 +249,10 @@ def create_model_df(
         model_df = model_df.drop(target_var, axis=1)
     return model_df
 
+
 ############################# EDA ############################################
-def cast_date_to_timestamp(df:pd.DataFrame):
+def cast_date_to_timestamp(df: pd.DataFrame):
     for col in df.columns:
         if df[col].dtype == "datetime64[ns]":
             df[col] = df[col].astype("int64")
     return df
-
-

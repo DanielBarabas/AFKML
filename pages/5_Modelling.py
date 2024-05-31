@@ -4,13 +4,24 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import modules.modelling as m
 
-
 # TODO rewrite, so not everything is run automatically
 
 n_features = st.session_state["X"].shape[1]
 
 
 st.set_page_config(page_title="Modelling", layout="wide")
+
+# Don't run until no data is uploaded
+if "df" not in st.session_state:
+    st.write("First upload some data on the homepage")
+    st.stop()
+elif "X" not in st.session_state:
+    st.write(
+        "First choose the target variable and approriate encoding on the encoding page"
+    )
+    st.stop()
+
+
 st.title("Modelling")
 
 

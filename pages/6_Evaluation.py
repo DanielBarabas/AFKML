@@ -13,6 +13,20 @@ from modules.eval import (
 )
 
 
+st.set_page_config(page_title="Model evaluation", layout="wide")
+
+# Don't run until no data is uploaded
+if "df" not in st.session_state:
+    st.write("First upload some data on the homepage")
+    st.stop()
+elif "model" not in st.session_state:
+    st.write("Train a model first on the modelling page")
+    st.stop()
+
+
+st.title("Model evaluation")
+
+
 y_pred, y_pred_binary = predict1(
     st.session_state["model"],
     st.session_state["X_test"],

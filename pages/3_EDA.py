@@ -11,7 +11,15 @@ from modules.eda import (
 )
 from modules.data_wrangling import cast_date_to_timestamp
 
+
 st.set_page_config(page_title="Exploratory data analysis", layout="wide")
+
+# Don't run until no data is uploaded
+if "df" not in st.session_state:
+    st.write("First upload some data on the homepage")
+    st.stop()
+
+
 st.title("Exploratory data analysis")
 alt.data_transformers.disable_max_rows()
 st.session_state["df"] = cast_date_to_timestamp(st.session_state["df"])
