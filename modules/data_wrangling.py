@@ -59,7 +59,10 @@ def cast_dtype(df: pd.DataFrame, orig_dict: dict, res_dict: dict, dtype_map: dic
     for key in res_dict.keys():
         if res_dict[key] != orig_dict[key]:
             # Cannot handle exceptions yet
-            df[key] = df[key].astype(dtype_map[res_dict[key]])
+            if res_dict[key] == "Date":
+                df[key] = pd.to_datetime(df[key])
+            else:
+                df[key] = df[key].astype(dtype_map[res_dict[key]])
     orig_dict = res_dict
     return df, orig_dict
 
