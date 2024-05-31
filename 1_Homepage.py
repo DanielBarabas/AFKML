@@ -10,7 +10,7 @@ dtype_map_inverse = {
     "category": "Categorical",
     "object": "Categorical",
     "int64": "Numeric",
-    "datetime64[ns]":"Date"
+    "datetime64[ns]": "Date",
 }
 
 
@@ -21,7 +21,7 @@ st.title("Data Upload page")
 user_file = st.file_uploader(
     label="You can upload the data here.", type=["csv", "xlsx"]
 )
-typelist = ("Numeric", "Categorical","Date")
+typelist = ("Numeric", "Categorical", "Date")
 
 # TODO add compressed upload option
 # TODO what if user wants to upload another data? - session state if statement doesn't allow that (create refresh page button)
@@ -64,4 +64,3 @@ if "df" in st.session_state:
         )
     except:
         st.write("Not a valid type!")
-
