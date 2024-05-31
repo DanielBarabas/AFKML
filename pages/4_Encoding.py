@@ -12,6 +12,7 @@ dtype_map_inverse = {
     "int64": "Numeric",
     "datetime64[ns]": "Date",
 }
+encodings = ("One-Hot", "Target", "Ordinal")
 
 
 st.set_page_config(page_title="Encoding", layout="wide")
@@ -25,52 +26,50 @@ if "df" not in st.session_state:
 st.title("Encode variables")
 
 
-with st.expander(label="Target variable selection", expanded=True):
-    target_var = st.selectbox(
-        "Choose the target variable for your analysis:",
-        st.session_state["df"].columns.to_list(),
-        help="The target variable has to be encoded in a different way than features",
-    )
-    st.session_state["y_colname"] = target_var
+st.header("Choose target variable")
+target_var = st.selectbox(
+    "Choose the target variable for your analysis:",
+    st.session_state["df"].columns.to_list(),
+    help="The target variable has to be encoded in a different way than features",
+)
+st.session_state["y_colname"] = target_var
 
-    # Encode target variable and specify problem type
-    object_or_cat = pd.api.types.is_object_dtype(
+# Encode target variable and specify problem type
+object_or_cat = pd.api.types.is_object_dtype(
+    st.session_state["df"][target_var]
+) or pd.api.types.is_categorical_dtype(st.session_state["df"][target_var])
+
+if object_or_cat:
+    label_encoder = LabelEncoder()
+    st.session_state["y"] = label_encoder.fit_transform(
         st.session_state["df"][target_var]
-    ) or pd.api.types.is_categorical_dtype(st.session_state["df"][target_var])
-
-    if object_or_cat:
-        label_encoder = LabelEncoder()
-        st.session_state["y"] = label_encoder.fit_transform(
-            st.session_state["df"][target_var]
-        )
-        st.session_state["le"] = label_encoder
-
-        n_unique_cat = st.session_state["df"][target_var].nunique()
-        if n_unique_cat == 2:
-            st.session_state["problem_type"] = "Binary classification"
-            st.session_state["y_type"] = "categorical with two categories"
-        else:
-            st.session_state["problem_type"] = "Multiclass classification"
-            st.session_state["y_type"] = "categorical with multiple categories"
-    else:
-        # cast to pd.DataFrame otherwise sklearn models doesn't run
-        st.session_state["y"] = pd.DataFrame(st.session_state["df"][target_var])
-        st.session_state["problem_type"] = "Regression"
-        st.session_state["y_type"] = "numeric"
-
-    st.write(
-        f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
     )
+    st.session_state["le"] = label_encoder
+
+    n_unique_cat = st.session_state["df"][target_var].nunique()
+    if n_unique_cat == 2:
+        st.session_state["problem_type"] = "Binary classification"
+        st.session_state["y_type"] = "categorical with two categories"
+    else:
+        st.session_state["problem_type"] = "Multiclass classification"
+        st.session_state["y_type"] = "categorical with multiple categories"
+else:
+    # cast to pd.DataFrame otherwise sklearn models doesn't run
+    st.session_state["y"] = pd.DataFrame(st.session_state["df"][target_var])
+    st.session_state["problem_type"] = "Regression"
+    st.session_state["y_type"] = "numeric"
+
+st.write(
+    f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
+)
 
 
-encodings = ("One-Hot", "Target", "Ordinal")
 valid_cols = find_valid_cols(st.session_state["df"], target_var, dtype_map_inverse)
 y_type = find_label_type(st.session_state["df"], target_var, dtype_map_inverse)
-
-st.write(target_var, y_type)
-
 original_encodings = pd.DataFrame({"Variable": valid_cols, "Encoding": "One-Hot"})
 
+
+st.header("Encode categorical variables")
 gb = GridOptionsBuilder.from_dataframe(original_encodings)
 gb.configure_column(
     "Encoding",
