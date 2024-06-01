@@ -9,7 +9,7 @@ from modules.eda import (
     scatter,
     cor_matrix,
     missing_value_plot,
-    desc_table
+    desc_table,
 )
 from modules.data_wrangling import cast_date_to_timestamp
 
@@ -28,10 +28,12 @@ alt.data_transformers.disable_max_rows()
 
 ### Cached functions
 
+
 @st.cache_data
 def get_cat_options(df):
     cat_options = df.select_dtypes(include="object").columns.tolist()
     return cat_options
+
 
 @st.cache_data
 def update_df(df):
@@ -52,11 +54,7 @@ def show_vcount_bar_chart(df, selected_cat):
 
 @st.cache_resource(experimental_allow_widgets=True)
 def show_ass_chart(df, options):
-    if len(options) == 2 :
-        st.write(
-            str(df[options[0]].dtype),
-            str(df[options[1]].dtype),
-        )
+    if len(options) == 2:
 
         # Both category:
         if (
@@ -106,15 +104,13 @@ dtype_map_inverse = {
 # TODO add differing "key" param to buttons -> so that they can have the same name
 st.header("Descriptive Table")
 desc_switch = st.toggle(label="Create descriptive statistics")
-if desc_switch: 
+if desc_switch:
     show_desc_table(st.session_state["df"])
 # TODO not just object but category dtype as well!
 st.header("Distribution of Categorical variables")
 
 cat_options = get_cat_options(st.session_state["df"])
-selected_cat = st.selectbox(
-    "Select categorical variable", cat_options
-)
+selected_cat = st.selectbox("Select categorical variable", cat_options)
 
 vc_switch = st.toggle(label="Create value counts chart", value=False)
 if vc_switch:
