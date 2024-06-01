@@ -10,6 +10,9 @@ def rf_param_input(n_features) -> tuple:
     Returns:
         tuple: specified hyperparameter values
     """
+    st.write(
+        "Read the scikit-learn documentation for more information on the parameters: https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html"
+    )
     n_estimators = st.slider("n_estimators", min_value=10, max_value=1000, value=100)
     max_depth = st.radio(
         "max_depth", options=["Up to min_samples_split", "Input specific number"]
@@ -55,6 +58,9 @@ def xbg_param_input() -> tuple:
     Returns:
         tuple: specified parameter values
     """
+    st.write(
+        "Read the XGBoost documentation for more information on the parameters: https://xgboost.readthedocs.io/en/stable/parameter.html"
+    )
     n_estimators = st.slider("n_estimators", min_value=10, max_value=1000, value=100)
     max_depth = st.slider("max_depth", min_value=0, max_value=15, value=6)
     learning_rate = st.slider(
@@ -68,7 +74,7 @@ def xbg_param_input() -> tuple:
         "colsample_bytree", min_value=0.1, max_value=1.0, value=1.0, step=0.01
     )
     reg_lambda = st.number_input("lamdba", min_value=0.0, value=1.0, step=0.1)
-    reg_alpha = st.number_input("aplha", min_value=0.0, value=1.0, step=0.1)
+    reg_alpha = st.number_input("alpha", min_value=0.0, value=1.0, step=0.1)
     # TODO add step?
     min_child_weight = st.number_input("min_child_weight", min_value=0, value=1)
     # TODO add step?
