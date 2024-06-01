@@ -161,7 +161,7 @@ def find_toggles(driver):
 
 ###### Modelling ######
 def find_sliders(driver):
-    return driver.find_elements(By.CLASS_NAME, "st-emotion-cache-1vzeuhh.ew7r33m3")
+    return driver.find_elements(By.CSS_SELECTOR, "div[role='slider'] > div")
 
 
 def move_slider(driver, sliders, slider_num, movement):
