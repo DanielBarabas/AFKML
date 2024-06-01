@@ -74,6 +74,20 @@ def select_dropdown(driver, dropdown_class: str, options_class: str, option_i: i
     options[option_i].click()
 
 
+def clear_multi(driver, css_multi: str, child_i: int = 1):
+    childs = driver.find_elements(By.CSS_SELECTOR, css_multi)
+    childs[child_i].click()
+
+
+def fill_multi(driver, multi_class: str, options_css: str, options_i: list):
+    """!!!options_i: be aware that the currently selected option is OMMITED from the list of options"""
+    multi = driver.find_element(By.CLASS_NAME, multi_class)
+    multi.click()
+    options = driver.find_elements(By.CSS_SELECTOR, options_css)
+    for i in options_i:
+        options[i].click()
+
+
 def click_something_from_list(list_of_clickables, number_of_clickable):
     try:
         toggle = list_of_clickables[number_of_clickable]
