@@ -40,6 +40,8 @@ def rf_param_input(n_features) -> tuple:
     )
     if paralel:
         n_jobs = -1
+    else:
+        n_jobs = None
 
     return (
         n_estimators,
