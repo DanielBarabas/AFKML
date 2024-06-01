@@ -22,6 +22,13 @@ def test_wait_xpath(driver, x_path: str):
     ), f"Could not find element by {By.XPATH} with value {x_path}"
 
 
+def test_wait_css(driver, css_selector: str):
+    """Last part of the css selector (class.name) is enough if it is unique"""
+    assert WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, css_selector))
+    ), f"Could not find element by {By.CLASS_NAME} with value {css_selector}"
+
+
 def test_scroll_to_xpath(driver, x_path: str):
     elem = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, x_path))
