@@ -32,6 +32,7 @@ def test_wait_css(driver, css_selector: str):
     ), f"Could not find element by {By.CLASS_NAME} with value {css_selector}"
 
 
+# KILL
 def test_scroll_to_xpath(driver, x_path: str):
     elem = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, x_path))
@@ -65,12 +66,14 @@ def test_scroll_to_element(driver, elem):
     body.send_keys(Keys.PAGE_UP)
 
 
-def select_dropdown(driver, dropdown_class: str, options_class: str, option_i: int):
+def select_dropdown(driver, dropdown_css: str, options_css: str, option_i: int):
     """!!!option_i: be aware that the currently selected option is OMMITED from the list of options"""
-    dropdown = driver.find_element(By.CLASS_NAME, dropdown_class)
+    dropdown = driver.find_element(By.CSS_SELECTOR, dropdown_css)
     dropdown.click()
 
-    options = driver.find_elements(By.CLASS_NAME, options_class)
+    time.sleep(1)
+
+    options = driver.find_elements(By.CSS_SELECTOR, options_css)
     options[option_i].click()
 
 
