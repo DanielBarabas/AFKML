@@ -58,10 +58,24 @@ options_css = 'div[data-baseweb="popover"] > div > div > ul > div > div > li'
 tests.test_scroll_to_element(driver=driver, elem=h2s[1])
 time.sleep(1)
 tests.select_dropdown(
-    driver=driver, dropdown_css=dropdown_css, options_css=options_css, option_i=1
+    driver=driver, dropdown_css=dropdown_css, options_css=options_css, option_i=0
 )
 time.sleep(1)
+toggles = tests.find_toggles(driver=driver)
 tests.click_something_from_list(list_of_clickables=toggles, number_of_clickable=1)
+time.sleep(5)
+
+# Ass charts
+multi_class = "stMultiSelect"
+options_css = 'div[data-baseweb="popover"] > div > div > ul > div > div > li'
+tests.clear_multi(driver=driver, multi_class=multi_class)
+time.sleep(1)
+tests.fill_multi(
+    driver=driver, multi_class=multi_class, options_css=options_css, options_i=[2, 3]
+)
+toggles = tests.find_toggles(driver=driver)
+tests.click_something_from_list(list_of_clickables=toggles, number_of_clickable=1)
+time.slep
 
 time.sleep(10)
 ##### Encoding #####
