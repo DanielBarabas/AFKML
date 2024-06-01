@@ -54,19 +54,13 @@ def test_scroll_to_tagname(driver, tag_name: str):
     driver.execute_script("arguments[0].scrollIntoView();", elem)
 
 
-def test_dropdown(driver, dropdown_class: str, options_class: str, option_i: int):
+def select_dropdown(driver, dropdown_class: str, options_class: str, option_i: int):
     """!!!option_i: be aware that the currently selected option is OMMITED from the list of options"""
-    try:
-        dropdown = driver.find_element(By.CLASS_NAME, dropdown_class)
-        dropdown.click()
-    except:
-        raise AssertionError(f"Could not find dropdown with class {dropdown_class}")
+    dropdown = driver.find_element(By.CLASS_NAME, dropdown_class)
+    dropdown.click()
 
-    try:
-        options = driver.find_elements(By.CLASS_NAME, options_class)
-        options[option_i].click()
-    except:
-        raise AssertionError(f"Could not find options with class {options_class}")
+    options = driver.find_elements(By.CLASS_NAME, options_class)
+    options[option_i].click()
 
 
 ###### Homepage ########
