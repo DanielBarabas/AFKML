@@ -84,12 +84,7 @@ response = AgGrid(
     gridOptions=vgo,
 )
 
-st.write(response.data)
-
+# Create X df
 st.session_state["X"] = create_model_df(
     response.data, st.session_state["df"], target_var, y_type, dtype_map_inverse
 )
-st.write(st.session_state["X"])
-# This has the encoded features in it
-st.write(st.session_state["df"].shape)
-st.write(st.session_state["X"].shape)
