@@ -13,5 +13,5 @@ if "df" not in st.session_state:
 st.title("Pandas profiling")
 
 pr = st.session_state["df"].profile_report(minimal=True)
-st.write("ok")
-# st_profile_report(pr)
+
+st_profile_report(pr)
