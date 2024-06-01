@@ -2,6 +2,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
 
 
 ###### General ######
@@ -54,6 +56,15 @@ def test_scroll_to_tagname(driver, tag_name: str):
     driver.execute_script("arguments[0].scrollIntoView();", elem)
 
 
+def test_scroll_to_element(driver, elem):
+    if not elem:
+        raise AssertionError(f"Could not find the given element ({elem})")
+
+    driver.execute_script("arguments[0].scrollIntoView();", elem)
+    body = driver.find_element(By.TAG_NAME, "body")
+    body.send_keys(Keys.PAGE_UP)
+
+
 def select_dropdown(driver, dropdown_class: str, options_class: str, option_i: int):
     """!!!option_i: be aware that the currently selected option is OMMITED from the list of options"""
     dropdown = driver.find_element(By.CLASS_NAME, dropdown_class)
@@ -61,6 +72,16 @@ def select_dropdown(driver, dropdown_class: str, options_class: str, option_i: i
 
     options = driver.find_elements(By.CLASS_NAME, options_class)
     options[option_i].click()
+
+
+def click_something_from_list(list_of_clickables, number_of_clickable):
+    try:
+        toggle = list_of_clickables[number_of_clickable]
+        toggle.click()
+    except:
+        raise AssertionError(
+            f"Could not find the {number_of_clickable}th element on the page"
+        )
 
 
 ###### Homepage ########
@@ -74,12 +95,6 @@ def test_data_upload(driver, file_path: str):
 
 
 ###### EDA ########
-def click_toggle(toggles, toggle_num):
-    try:
-        toggle = toggles[toggle_num]
-        toggle.click()
-    except:
-        raise AssertionError(f"Could not find the {toggle_num}th toggle on the page")
 
 
 def scroll_to_h2(driver, h2s, h2_num):
@@ -105,3 +120,43 @@ def find_toggles(driver):
 
 
 ###### Encoding ########
+
+
+###### Modelling ######
+def find_sliders(driver):
+    return driver.find_elements(By.CLASS_NAME, "st-emotion-cache-1vzeuhh.ew7r33m3")
+
+
+def move_slider(driver, sliders, slider_num, movement):
+    if movement < 0:
+        webdriver.ActionChains(driver).click(sliders[slider_num]).send_keys(
+            -movement * Keys.ARROW_DOWN
+        ).perform()
+    else:
+        webdriver.ActionChains(driver).click(sliders[slider_num]).send_keys(
+            movement * Keys.ARROW_UP
+        ).perform()
+
+
+def find_clickable_circles(driver):
+    return driver.find_elements(By.CLASS_NAME, "st-im.st-bk")
+
+
+def find_non_clickable_circles(driver):
+    return driver.find_elements(By.CLASS_NAME, "st-ao.st-bk")
+
+
+def find_stepups(driver):
+    return driver.find_elements(By.CLASS_NAME, "step-up")
+
+
+def find_stepdowns(driver):
+    return driver.find_elements(By.CLASS_NAME, "step-down")
+
+
+def find_tickboxes(driver):
+    return driver.find_elements(By.CLASS_NAME, "st-hm")
+
+
+def find_run_button(driver):
+    return driver.find_elements(By.CLASS_NAME, "st-emotion-cache-7ym5gk")
