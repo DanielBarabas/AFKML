@@ -41,6 +41,7 @@ def test_scroll_to_xpath(driver, x_path: str):
 
     driver.execute_script("arguments[0].scrollIntoView();", elem)
 
+
 def test_scroll_to_tagname(driver, tag_name: str):
     elem = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.TAG_NAME, tag_name))
@@ -53,9 +54,22 @@ def test_scroll_to_tagname(driver, tag_name: str):
     driver.execute_script("arguments[0].scrollIntoView();", elem)
 
 
-###### Homepage ######
+def test_dropdown(driver, dropdown_class: str, options_class: str, option_i: int):
+    """!!!option_i: be aware that the currently selected option is OMMITED from the list of options"""
+    try:
+        dropdown = driver.find_element(By.CLASS_NAME, dropdown_class)
+        dropdown.click()
+    except:
+        raise AssertionError(f"Could not find dropdown with class {dropdown_class}")
+
+    try:
+        options = driver.find_elements(By.CLASS_NAME, options_class)
+        options[option_i].click()
+    except:
+        raise AssertionError(f"Could not find options with class {options_class}")
 
 
+###### Homepage ########
 def test_data_upload(driver, file_path: str):
     file_input = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
@@ -65,38 +79,35 @@ def test_data_upload(driver, file_path: str):
     file_input.send_keys(file_path)
 
 
-###### EDA ######
-def click_toggle(toggles,toggle_num):
-     try:
-          toggle = toggles[toggle_num]
-          toggle.click()
-     except:
-        raise AssertionError(
-            f"Could not find the {toggle_num}th toggle on the page"
-        )
+###### EDA ########
+def click_toggle(toggles, toggle_num):
+    try:
+        toggle = toggles[toggle_num]
+        toggle.click()
+    except:
+        raise AssertionError(f"Could not find the {toggle_num}th toggle on the page")
 
-def scroll_to_h2(driver,h2s,h2_num):
-     try:
-          h2 = h2s[h2_num]
-          driver.execute_script("arguments[0].scrollIntoView();", h2)
-     except:
-         raise AssertionError(
-            f"Could not find the {h2_num}th header on the page"
-        )
-        
+
+def scroll_to_h2(driver, h2s, h2_num):
+    try:
+        h2 = h2s[h2_num]
+        driver.execute_script("arguments[0].scrollIntoView();", h2)
+    except:
+        raise AssertionError(f"Could not find the {h2_num}th header on the page")
+
 
 def find_h2s(driver):
-     try:
-          return driver.find_elements(By.TAG_NAME, "h2")
-     except:
-         raise AssertionError(
-            "No h2 headers on the page"
-        )
-         
+    try:
+        return driver.find_elements(By.TAG_NAME, "h2")
+    except:
+        raise AssertionError("No h2 headers on the page")
+
+
 def find_toggles(driver):
-     try:
-          return driver.find_elements(By.CLASS_NAME, "st-b4.st-b6")
-     except:
-         raise AssertionError(
-            "No toggles headers on the page"
-        )
+    try:
+        return driver.find_elements(By.CLASS_NAME, "st-b4.st-b6")
+    except:
+        raise AssertionError("No toggles headers on the page")
+
+
+###### Encoding ########
