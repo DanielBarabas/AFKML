@@ -77,8 +77,9 @@ def select_dropdown(driver, dropdown_css: str, options_css: str, option_i: int):
     options[option_i].click()
 
 
-def clear_multi(driver, multi_class: str):
-    driver.find_element(By.CLASS_NAME, multi_class).click()
+def clear_multi(driver, css_delete: str, child_i: int = 1):
+    childs = driver.find_elements(By.CSS_SELECTOR, css_delete)
+    childs[child_i].click()
 
 
 def fill_multi(driver, multi_class: str, options_css: str, options_i: list):
@@ -98,26 +99,32 @@ def click_something_from_list(list_of_clickables, number_of_clickable):
         raise AssertionError(
             f"Could not find the {number_of_clickable}th element on the page"
         )
-    
-def update_agrid_one_iter(driver,row_to_update:int,option_to_select:int):
+
+
+def update_agrid_one_iter(driver, row_to_update: int, option_to_select: int):
     iframe = driver.find_element(By.TAG_NAME, "iframe")
     driver.switch_to.frame(iframe)
 
-    test_wait_css(driver,"div[role='gridcell']")
-    elem = driver.find_elements(By.CSS_SELECTOR, "div[role='gridcell']")[(2*row_to_update) + 1]
-    #time.sleep(0.1)
+    test_wait_css(driver, "div[role='gridcell']")
+    elem = driver.find_elements(By.CSS_SELECTOR, "div[role='gridcell']")[
+        (2 * row_to_update) + 1
+    ]
+    # time.sleep(0.1)
     elem.send_keys(Keys.ENTER)
-    test_wait_css(driver,"div.ag-popup")
+    test_wait_css(driver, "div.ag-popup")
     popup = driver.find_element(By.CSS_SELECTOR, "div.ag-popup")
-    #time.sleep(0.5)
-    popup.find_element(By.TAG_NAME, "div").find_elements(By.TAG_NAME, 'div')[option_to_select].click()
+    # time.sleep(0.5)
+    popup.find_element(By.TAG_NAME, "div").find_elements(By.TAG_NAME, "div")[
+        option_to_select
+    ].click()
 
     driver.switch_to.default_content()
 
-def update_agrid(driver,row_to_update:int,option_to_select:int):
-    update_agrid_one_iter(driver,row_to_update,option_to_select)
+
+def update_agrid(driver, row_to_update: int, option_to_select: int):
+    update_agrid_one_iter(driver, row_to_update, option_to_select)
     time.sleep(3)
-    update_agrid_one_iter(driver,row_to_update,option_to_select)
+    update_agrid_one_iter(driver, row_to_update, option_to_select)
 
 
 ###### Homepage ########
