@@ -77,9 +77,8 @@ def select_dropdown(driver, dropdown_css: str, options_css: str, option_i: int):
     options[option_i].click()
 
 
-def clear_multi(driver, css_multi: str, child_i: int = 1):
-    childs = driver.find_elements(By.CSS_SELECTOR, css_multi)
-    childs[child_i].click()
+def clear_multi(driver, multi_class: str):
+    driver.find_element(By.CLASS_NAME, multi_class).click()
 
 
 def fill_multi(driver, multi_class: str, options_css: str, options_i: list):
