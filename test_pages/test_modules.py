@@ -127,9 +127,12 @@ def find_h2s(driver):
 
 
 def find_toggles(driver):
-    elements = driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='checkbox'] > div")
+    elements = driver.find_elements(
+        By.CSS_SELECTOR, "label[data-baseweb='checkbox'] > div"
+    )
     del elements[::2]
-    return elements    
+    return elements
+
 
 ###### Encoding ########
 
@@ -151,7 +154,9 @@ def move_slider(driver, sliders, slider_num, movement):
 
 
 def find_circles(driver):
-    elements = driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='radio'] > div")
+    elements = driver.find_elements(
+        By.CSS_SELECTOR, "label[data-baseweb='radio'] > div"
+    )
     del elements[::2]
     return elements
 
@@ -165,7 +170,9 @@ def find_stepdowns(driver):
 
 
 def find_tickboxes(driver):
-    return driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='checkbox'] > span")
+    return driver.find_elements(
+        By.CSS_SELECTOR, "label[data-baseweb='checkbox'] > span"
+    )
 
 
 def find_run_button(driver):

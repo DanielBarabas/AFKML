@@ -51,6 +51,7 @@ if "df" in st.session_state:
         cellEditorParams={"values": typelist},
     )
 
+    st.header("Change data types")
     vgo = gb.build()
     response = AgGrid(
         original_types,
