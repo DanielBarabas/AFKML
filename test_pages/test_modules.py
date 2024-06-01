@@ -113,11 +113,9 @@ def find_h2s(driver):
 
 
 def find_toggles(driver):
-    try:
-        return driver.find_elements(By.CLASS_NAME, "st-b4.st-b6")
-    except:
-        raise AssertionError("No toggles headers on the page")
-
+    elements = driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='checkbox'] > div")
+    del elements[::2]
+    return elements    
 
 ###### Encoding ########
 
@@ -138,12 +136,10 @@ def move_slider(driver, sliders, slider_num, movement):
         ).perform()
 
 
-def find_clickable_circles(driver):
-    return driver.find_elements(By.CLASS_NAME, "st-im.st-bk")
-
-
-def find_non_clickable_circles(driver):
-    return driver.find_elements(By.CLASS_NAME, "st-ao.st-bk")
+def find_circles(driver):
+    elements = driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='radio'] > div")
+    del elements[::2]
+    return elements
 
 
 def find_stepups(driver):
@@ -155,7 +151,7 @@ def find_stepdowns(driver):
 
 
 def find_tickboxes(driver):
-    return driver.find_elements(By.CLASS_NAME, "st-hm")
+    return driver.find_elements(By.CSS_SELECTOR,"label[data-baseweb='checkbox'] > span")
 
 
 def find_run_button(driver):
