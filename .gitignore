@@ -1,5 +1,6 @@
 /data
 /__pycache__
+/test_pages
 ch16-airbnb-prepare-london.ipynb
 py_helper_functions.py
 test-init.ipynb
