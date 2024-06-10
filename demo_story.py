@@ -16,7 +16,7 @@ driver.maximize_window()
 ##### Homepage #####
 tests.test_data_upload(
     driver=driver,
-    file_path="C:/Users/aronn/OneDrive/Asztali gép/Rajk/Prog 2/prog_machine_project/data/alcohol_sample.csv",
+    file_path="C:/Projects/Rajk/prog_2/project/prog_machine_project/data/alcohol_sample.csv",
 )
 
 tests.test_wait_css(
