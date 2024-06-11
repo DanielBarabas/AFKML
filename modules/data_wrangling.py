@@ -59,7 +59,7 @@ def cast_dtype(
     """
     for key in res_dict.keys():
         if res_dict[key] != orig_dict[key]:
-            # Cannot handle exceptions yet
+            # TODO Change to datetime only if original type is string! (we dont want to cast numbers to dates!)
             if res_dict[key] == "Date":
                 df[key] = pd.to_datetime(df[key])
             else:
