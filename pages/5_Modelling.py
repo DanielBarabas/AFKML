@@ -186,7 +186,7 @@ elif model_type == "XGBoost":
 elif model_type == "Linear regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
-        "Do you want to build trees in paralel with multiple CPUs", value=True
+        "Do you want to use multiple CPUs for the calculations?", value=True
     )
     if paralel:
         n_jobs = -1
@@ -204,5 +204,25 @@ elif model_type == "Linear regression":
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
+elif model_type == "Logistic regression":
+    fit_intercept = st.checkbox("Fit intercept", value=True)
+    paralel = st.checkbox(
+        "Do you want to use multiple CPUs for the calculations?", value=True
+    )
+    if paralel:
+        n_jobs = -1
+    else:
+        n_jobs = None
 
+    if st.button("Run model", key="logr"):
+        st.session_state["model"] = LogisticRegression(
+            fit_intercept=fit_intercept, n_jobs=n_jobs
+        ).fit(
+            st.session_state["X_train"].loc[:, feat_used],
+            st.session_state["y_train"],
+        )
+
+        st.write(
+            "Model training is complete go to evaluation page to see model diagnostics"
+        )
     # TODO write out: your model is in training + time passed
