@@ -31,7 +31,7 @@ def my_train_test_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=72)
 
 
-st.header("Preparing")
+st.header("Preparation")
 st.write(
     f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
 )
@@ -172,4 +172,3 @@ elif model_type == "XGBoost":
             st.write(st.session_state["model"].score)
 
     # TODO write out: your model is in training + time passed
-    # TODO cache the models?

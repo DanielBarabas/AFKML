@@ -16,16 +16,13 @@ def sample_check(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
 
-
 @st.cache_resource
 def desc_table(df: pd.DataFrame):
     return df.describe()
 
 
 @st.cache_resource
-def v_counts_bar_chart(
-    df: pd.DataFrame, selected_cat: str, vc_switch: bool
-) -> alt.Chart:
+def v_counts_bar_chart(df: pd.DataFrame, selected_cat: str) -> alt.Chart:
     """Creates boxplot of value counts of a categorical variable
 
     Args:
@@ -82,6 +79,7 @@ def scatter(df, chosen_features):
     )
     return fig
 
+
 @st.cache_resource
 def cor_matrix(df):
     n = len(df.select_dtypes(include=["int64", "float64"]).columns)
@@ -110,6 +108,7 @@ def cor_matrix(df):
         return cor_plot
     else:
         return cor_plot + text
+
 
 @st.cache_resource
 def missing_value_plot(df):
