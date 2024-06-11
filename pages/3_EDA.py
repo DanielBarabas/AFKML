@@ -49,10 +49,10 @@ if st.toggle(label="Create histogram", key="hist"):
     fig = histogram(st.session_state["df"], selected_num)
     st.altair_chart(fig, use_container_width=True)
 
+
 st.header("Value Counts Chart")
 cat_options = st.session_state["df"].select_dtypes(include="object").columns.tolist()
 selected_cat = st.selectbox("Select categorical variable", cat_options)
-
 if st.toggle(label="Create value counts chart", key="v_counts"):
     fig = v_counts_bar_chart(st.session_state["df"], selected_cat)
     st.altair_chart(fig, use_container_width=True)

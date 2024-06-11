@@ -1,6 +1,7 @@
 import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from xgboost import XGBClassifier, XGBRegressor
 import modules.modelling as m
 
@@ -34,12 +35,21 @@ st.write(
     f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
 )
 
-model_type = st.selectbox("Select model", options=["Random forest", "XGBoost"])
+
+if st.session_state["problem_type"] == "Regression":
+    model_options = ["Random forest", "XGBoost", "Linear regression"]
+else:
+    model_options = ["Random forest", "XGBoost", "Logistic regression"]
+
+model_type = st.selectbox(
+    "Select model",
+    options=model_options,
+)
 
 test_size = st.slider(
     "Select what ratio you want the test set to be",
     min_value=0.1,
-    max_value=0.9,
+    max_value=0.5,
     value=0.2,
     help="Normally test set ratio is between 0.1 and 0.3",
 )
@@ -173,5 +183,26 @@ elif model_type == "XGBoost":
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
+elif model_type == "Linear regression":
+    fit_intercept = st.checkbox("Fit intercept", value=True)
+    paralel = st.checkbox(
+        "Do you want to build trees in paralel with multiple CPUs", value=True
+    )
+    if paralel:
+        n_jobs = -1
+    else:
+        n_jobs = None
+
+    if st.button("Run model", key="lr"):
+        st.session_state["model"] = LinearRegression(
+            fit_intercept=fit_intercept, n_jobs=n_jobs
+        ).fit(
+            st.session_state["X_train"].loc[:, feat_used],
+            st.session_state["y_train"],
+        )
+
+        st.write(
+            "Model training is complete go to evaluation page to see model diagnostics"
+        )
 
     # TODO write out: your model is in training + time passed

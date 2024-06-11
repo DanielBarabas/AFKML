@@ -77,10 +77,12 @@ def xbg_param_input() -> tuple:
     )
     reg_lambda = st.number_input("lamdba", min_value=0.0, value=1.0, step=0.1)
     reg_alpha = st.number_input("alpha", min_value=0.0, value=1.0, step=0.1)
-    # TODO add step?
-    min_child_weight = st.number_input("min_child_weight", min_value=0, value=1)
-    # TODO add step?
-    scale_pos_weight = st.number_input("scale_pos_weight", min_value=0, value=1)
+    min_child_weight = st.number_input(
+        "min_child_weight", min_value=0, value=1, step=0.1
+    )
+    scale_pos_weight = st.number_input(
+        "scale_pos_weight", min_value=0, value=1, step=0.1
+    )
 
     return (
         n_estimators,
@@ -94,3 +96,11 @@ def xbg_param_input() -> tuple:
         min_child_weight,
         scale_pos_weight,
     )
+
+
+def log_reg_param_input() -> tuple:
+    C = st.slider("C", min_value=0.0, max_value=1.0, value=1.0, step=0.01)
+    penalty = st.radio("penalty", options=["l1", "l2"])
+    solver = st.radio("solver", options=["liblinear", "saga"])
+
+    return C, penalty, solver
