@@ -33,8 +33,13 @@ dtype_map_inverse = {
 
 
 st.header("Descriptive Table")
+percentiles = st.multiselect(
+    label="Choose percentiles",
+    options=[0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9],
+    default=[0.25, 0.5, 0.75],
+)
 if st.toggle(label="Create descriptive statistics", key="desc_stat"):
-    st.write(st.session_state["df"].describe())
+    st.write(st.session_state["df"].describe(percentiles=percentiles))
 
 
 st.header("Histogram")
