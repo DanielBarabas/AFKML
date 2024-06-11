@@ -244,15 +244,15 @@ def binary_metric_table(y_pred_binary, y_test):
 
 ################################## Multiclass Case ####################################
 @st.cache_resource(experimental_allow_widgets=True)
-def multiclass_cm(y_pred_binary, y_test, le):
+def multiclass_cm(y_pred_binary, y_test, _le):
     cm = confusion_matrix(y_test, y_pred_binary)
     cm_df = pd.DataFrame(
         cm,
         index=[
-            f"True {i}" for i in le.inverse_transform([i for i in range(cm.shape[0])])
+            f"True {i}" for i in _le.inverse_transform([i for i in range(cm.shape[0])])
         ],
         columns=[
-            f"Pred {i}" for i in le.inverse_transform([i for i in range(cm.shape[1])])
+            f"Pred {i}" for i in _le.inverse_transform([i for i in range(cm.shape[1])])
         ],
     )
     cm_long_df = cm_df.reset_index().melt(id_vars="index")
@@ -272,24 +272,24 @@ def multiclass_cm(y_pred_binary, y_test, le):
 
 
 @st.cache_resource(experimental_allow_widgets=True)
-def multiclass_roc(y_pred, y_test, le):
+def multiclass_roc(y_pred, y_test, _le):
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
 
-    for i in range(len(le.classes_)):
+    for i in range(len(_le.classes_)):
         fpr[i], tpr[i], _ = roc_curve(y_test == i, y_pred[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
     roc_data = pd.DataFrame(
         columns=["False Positive Rate", "True Positive Rate", "Class", "AUC"]
     )
 
-    for i in range(len(le.classes_)):
+    for i in range(len(_le.classes_)):
         temp_df = pd.DataFrame(
             {
                 "False Positive Rate": fpr[i],
                 "True Positive Rate": tpr[i],
-                "Class": f"Class {le.inverse_transform([i])[0]}",
+                "Class": f"Class {_le.inverse_transform([i])[0]}",
                 "AUC": roc_auc[i],
             }
         )
