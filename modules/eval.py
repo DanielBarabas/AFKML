@@ -334,8 +334,8 @@ def reg_table(y_pred, y_test):
 
 ########################## Same for all 3 cases ####################################
 @st.cache_resource(experimental_allow_widgets=True)
-def feature_importance(model, X_test, y_test):
-    imp = permutation_importance(model, X_test, y_test, n_repeats=2, random_state=42)
+def feature_importance(_model, X_test, y_test):
+    imp = permutation_importance(_model, X_test, y_test, n_repeats=2, random_state=42)
     importances = pd.Series(imp.importances_mean)
     feature_importance_df = pd.DataFrame(
         {"Feature": X_test.columns, "Importance": importances}

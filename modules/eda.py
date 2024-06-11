@@ -16,12 +16,18 @@ def sample_check(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def desc_table(df: pd.DataFrame):
     return df.describe()
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
+def histogram(df, column):
+    fig = alt.Chart(df).mark_bar().encode(alt.X(column, bin=True), y="count()")
+    return fig
+
+
+@st.cache_resource(experimental_allow_widgets=True)
 def v_counts_bar_chart(df: pd.DataFrame, selected_cat: str) -> alt.Chart:
     """Creates boxplot of value counts of a categorical variable
 
@@ -40,7 +46,7 @@ def v_counts_bar_chart(df: pd.DataFrame, selected_cat: str) -> alt.Chart:
     return fig
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def stacked_bar(df, chosen_features):
     fig = (
         alt.Chart(
@@ -56,7 +62,7 @@ def stacked_bar(df, chosen_features):
     return fig
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def boxplot(df, chosen_features):
     fig = (
         alt.Chart(sample_check(df))
@@ -70,7 +76,7 @@ def boxplot(df, chosen_features):
     return fig
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def scatter(df, chosen_features):
     fig = (
         alt.Chart(sample_check(df))
@@ -80,7 +86,7 @@ def scatter(df, chosen_features):
     return fig
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def cor_matrix(df):
     n = len(df.select_dtypes(include=["int64", "float64"]).columns)
     df = (
@@ -110,7 +116,7 @@ def cor_matrix(df):
         return cor_plot + text
 
 
-@st.cache_resource
+@st.cache_resource(experimental_allow_widgets=True)
 def missing_value_plot(df):
     fig, ax = plt.subplots()
     msno.matrix(

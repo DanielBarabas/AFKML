@@ -4,7 +4,6 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from xgboost import XGBClassifier, XGBRegressor
 import modules.modelling as m
 
-# TODO rewrite, so not everything is run automatically
 
 st.set_page_config(page_title="Modelling", layout="wide")
 
@@ -18,13 +17,12 @@ elif "X" not in st.session_state:
     )
     st.stop()
 
-
-st.title("Modelling")
-
 n_features = st.session_state["X"].shape[1]
 
 
-# TODO itt kell a caching ha session state-be rakjuk?
+st.title("Modelling")
+
+
 # Define own function only for caching
 @st.cache_data
 def my_train_test_split(X, y, test_size):
@@ -96,7 +94,9 @@ if model_type == "Random forest":
                 st.session_state["y_train"],
             )
 
-            st.write(type(st.session_state["model"]))
+            st.write(
+                "Model training is complete go to evaluation page to see model diagnostics"
+            )
     else:
         if st.button("Run model", key="rfc"):
             st.session_state["model"] = RandomForestClassifier(
@@ -112,7 +112,9 @@ if model_type == "Random forest":
                 st.session_state["y_train"],
             )
 
-            st.write(type(st.session_state["model"]))
+            st.write(
+                "Model training is complete go to evaluation page to see model diagnostics"
+            )
 
 elif model_type == "XGBoost":
     (
@@ -146,9 +148,10 @@ elif model_type == "XGBoost":
                 st.session_state["y_train"],
             )
 
-            st.write(type(st.session_state["model"]))
-            st.write(st.session_state["model"].evals_result)
-            st.write(st.session_state["model"].score)
+            st.write(
+                "Model training is complete go to evaluation page to see model diagnostics"
+            )
+
     else:
         if st.button("Run model", key="xgbc"):
             st.session_state["model"] = XGBClassifier(
@@ -167,8 +170,8 @@ elif model_type == "XGBoost":
                 st.session_state["y_train"],
             )
 
-            st.write(type(st.session_state["model"]))
-            st.write(st.session_state["model"].evals_result)
-            st.write(st.session_state["model"].score)
+            st.write(
+                "Model training is complete go to evaluation page to see model diagnostics"
+            )
 
     # TODO write out: your model is in training + time passed

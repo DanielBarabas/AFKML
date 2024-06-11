@@ -37,7 +37,7 @@ if user_file is not None:
 
 
 if "df" in st.session_state:
-    st.write("Here is the head")
+    st.write("Here are the first rows of your data frame")
     st.write(st.session_state["df"].head(5))
 
     original_types = dw.create_type_df(st.session_state["df"], dtype_map_inverse)
@@ -52,6 +52,9 @@ if "df" in st.session_state:
     )
 
     st.header("Change data types")
+    st.write(
+        "Double click on the cells under Type column to change the data type of the variable"
+    )
     vgo = gb.build()
     response = AgGrid(
         original_types,

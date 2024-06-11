@@ -2,6 +2,7 @@ import streamlit as st
 import altair as alt
 from modules.eda import (
     v_counts_bar_chart,
+    histogram,
     boxplot,
     stacked_bar,
     scatter,
@@ -35,7 +36,15 @@ st.header("Descriptive Table")
 if st.toggle(label="Create descriptive statistics", key="desc_stat"):
     st.write(st.session_state["df"].describe())
 
-# TODO not just object but category dtype as well!
+
+st.header("Histogram")
+num_options = st.session_state["df"].select_dtypes(include="number").columns.tolist()
+selected_num = st.selectbox("Select numeric variable", num_options)
+if st.toggle(label="Create histogram", key="hist"):
+    fig = histogram(st.session_state["df"], selected_num)
+    st.altair_chart(fig, use_container_width=True)
+
+st.header("Value Counts Chart")
 cat_options = st.session_state["df"].select_dtypes(include="object").columns.tolist()
 selected_cat = st.selectbox("Select categorical variable", cat_options)
 
