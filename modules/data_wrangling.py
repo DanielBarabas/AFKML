@@ -6,6 +6,10 @@ from sklearn.preprocessing import (
 )
 import numpy as np
 import streamlit as st
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
+import altair as alt
 
 
 def create_type_df(df: pd.DataFrame, dtype_map: dict) -> pd.DataFrame:
@@ -71,6 +75,7 @@ def cast_dtype(
 ######################## Encoding page ##################################
 
 
+@st.cache_data
 def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple:
     """_summary_
 
@@ -108,6 +113,7 @@ def find_label_type(df: pd.DataFrame, target_var: str, dtype_map: dict) -> str:
     return y_type
 
 
+@st.cache_data
 def one_hot_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     """Encodes one column using onehot encoding
 
@@ -126,6 +132,7 @@ def one_hot_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     return encoded_column, encoded_column_name
 
 
+@st.cache_data
 def tartet_encoding(
     df: pd.DataFrame, x_column: str, target_column: str, coltype: str
 ) -> tuple:
@@ -158,6 +165,7 @@ def tartet_encoding(
     return encoded_column, encoded_column_name
 
 
+@st.cache_data
 def ordinal_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     """Encodes one column using ordinal encoding
 
@@ -174,6 +182,7 @@ def ordinal_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     return encoded_column, encoded_column_name
 
 
+@st.cache_data
 def create_encoded_column(
     encoding: str, x_column: str, df: pd.DataFrame, target_column: str, y_type: str
 ) -> tuple:
@@ -201,6 +210,7 @@ def create_encoded_column(
     return pd.DataFrame(encoded_column), encoded_column_name
 
 
+@st.cache_data
 def create_model_df(
     res_df: pd.DataFrame,
     df: pd.DataFrame,
@@ -248,6 +258,76 @@ def create_model_df(
     if target_var in model_df.columns:
         model_df = model_df.drop(target_var, axis=1)
     return model_df
+
+
+################### PCA ########################
+
+
+@st.cache_data
+def filter_data(df, cols):
+    return df[cols]
+
+
+@st.cache_data
+def create_pca_before(df):
+    pipeline = Pipeline([("scaler", StandardScaler()), ("pca", PCA())])
+    pipeline.fit(df)
+
+    pca = pipeline.named_steps["pca"]
+    explained_variance_ratio = pca.explained_variance_ratio_
+    cumulative_explained_variance = explained_variance_ratio.cumsum()
+    variance_df = pd.DataFrame(
+        {
+            "Number of Principal Components": range(
+                1, len(explained_variance_ratio) + 1
+            ),
+            "Explained Variance Ratio": explained_variance_ratio,
+            "Cumulative Explained Variance": cumulative_explained_variance,
+        }
+    )
+    return variance_df
+
+
+@st.cache_data
+def create_pca_after(df, n_comp):
+    pipeline = Pipeline(
+        [("scaler", StandardScaler()), ("pca", PCA(n_components=n_comp))]
+    )
+    principal_components = pipeline.fit_transform(df)
+    principal_df = pd.DataFrame(
+        data=principal_components, columns=[f"PC{i+1}" for i in range(n_comp)]
+    )
+    return principal_df
+
+
+@st.cache_resource(experimental_allow_widgets=True)
+def create_pca_plots(df):
+    explained_variance_chart = (
+        alt.Chart(df)
+        .mark_line(point=True)
+        .encode(
+            x="Number of Principal Components",
+            y="Explained Variance Ratio",
+            tooltip=["Number of Principal Components", "Explained Variance Ratio"],
+        )
+        .properties(title="Explained Variance Ratio by Principal Components")
+    )
+
+    # Plotting the cumulative explained variance using Altair
+    cumulative_variance_chart = (
+        alt.Chart(df)
+        .mark_line(point=True, color="orange")
+        .encode(
+            x="Number of Principal Components",
+            y="Cumulative Explained Variance",
+            tooltip=["Number of Principal Components", "Cumulative Explained Variance"],
+        )
+        .properties(title="Cumulative Explained Variance by Principal Components")
+    )
+
+    # Combine the two charts
+    combined_chart = alt.hconcat(explained_variance_chart, cumulative_variance_chart)
+    return combined_chart
 
 
 ############################# EDA ############################################

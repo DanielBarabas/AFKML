@@ -2,7 +2,15 @@ import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from st_aggrid import GridOptionsBuilder, AgGrid
-from modules.data_wrangling import find_valid_cols, find_label_type, create_model_df
+from modules.data_wrangling import (
+    find_valid_cols,
+    find_label_type,
+    create_model_df,
+    filter_data,
+    create_pca_before,
+    create_pca_after,
+    create_pca_plots,
+)
 
 
 dtype_map_inverse = {
@@ -27,6 +35,9 @@ st.title("Encode variables")
 
 
 st.header("Choose target variable")
+st.write(
+    "Keep in mind that any changes here automatically removes all principal components from your data!"
+)
 target_var = st.selectbox(
     "Choose the target variable for your analysis:",
     st.session_state["df"].columns.to_list(),
@@ -70,6 +81,9 @@ original_encodings = pd.DataFrame({"Variable": valid_cols, "Encoding": "One-Hot"
 
 
 st.header("Encode categorical variables")
+st.write(
+    "Keep in mind that any changes here automatically removes all principal components from your data!"
+)
 gb = GridOptionsBuilder.from_dataframe(original_encodings)
 gb.configure_column(
     "Encoding",
@@ -88,3 +102,47 @@ response = AgGrid(
 st.session_state["X"] = create_model_df(
     response.data, st.session_state["df"], target_var, y_type, dtype_map_inverse
 )
+
+if st.toggle(label="PCA"):
+    variance_df = None
+    feat_used = st.multiselect(
+        "Choose the features to be included in PCA",
+        options=st.session_state["X"].columns,
+        default=st.session_state["X"].columns.to_list(),
+    )
+    if st.toggle(
+        label="Show PCA plots (Turn off while choosing the variables if computation is too slow)",
+        value=False,
+    ):
+        # df_for_dimred = filter_data(st.session_state["X"] , feat_used)
+        variance_df = create_pca_before(filter_data(st.session_state["X"], feat_used))
+        chart = create_pca_plots(variance_df)
+        st.altair_chart(chart, use_container_width=True)
+    if variance_df is not None:
+        n_comp = st.slider(
+            label="Number of Components", min_value=1, max_value=variance_df.shape[0]
+        )
+
+        if st.button(label="Update data with Principal Components"):
+            st.session_state["X"] = pd.concat(
+                [
+                    st.session_state["X"].drop(columns=feat_used),
+                    create_pca_after(
+                        filter_data(st.session_state["X"], feat_used), n_comp
+                    ),
+                ],
+                axis=1,
+            )
+            st.write(st.session_state["X"].head())
+
+        if st.button(
+            label="Remove Principal Components (and add back the original features)"
+        ):
+            st.session_state["X"] = create_model_df(
+                response.data,
+                st.session_state["df"],
+                target_var,
+                y_type,
+                dtype_map_inverse,
+            )
+            st.write(st.session_state["X"].head())
