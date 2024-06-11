@@ -80,18 +80,21 @@ def preproc(problem_type):
     return (model, y_pred, y_pred_binary, X_test, y_test, le)
 
 
-def predict1(model, X_test, problem_type):
+# added leading underscore to model param, since streamlit couldn't hash it
+@st.cache_data
+def predict1(_model, X_test, problem_type):
     if problem_type == "Regression":
-        y_pred = model.predict(X_test)
+        y_pred = _model.predict(X_test)
         y_pred_binary = "anyad"
     else:
-        y_pred = model.predict_proba(X_test)
-        y_pred_binary = model.predict(X_test)
+        y_pred = _model.predict_proba(X_test)
+        y_pred_binary = _model.predict(X_test)
 
     return y_pred, y_pred_binary
 
 
 ############################ Binary Case ####################################
+@st.cache_resource(experimental_allow_widgets=True)
 def binary_roc(y_pred, y_test):
     y_pred1 = [y[1] for y in y_pred]
     fpr, tpr, _ = roc_curve(y_test, y_pred1)
@@ -123,6 +126,7 @@ def binary_roc(y_pred, y_test):
     return final_chart
 
 
+@st.cache_resource(experimental_allow_widgets=True)
 def binary_prec_recall(y_pred, y_test):
     y_pred1 = [y[1] for y in y_pred]
     precision, recall, _ = precision_recall_curve(y_test, y_pred1)
@@ -152,6 +156,7 @@ def binary_prec_recall(y_pred, y_test):
     return pr_curve_chart
 
 
+@st.cache_resource(experimental_allow_widgets=True)
 def binary_cm(y_pred_binary, y_test):
     cm = confusion_matrix(y_test, y_pred_binary)
     cm_df = pd.DataFrame(
@@ -198,6 +203,7 @@ def binary_cm(y_pred_binary, y_test):
     return cm_chart + cm_text
 
 
+@st.cache_resource(experimental_allow_widgets=True)
 def binary_metric_table(y_pred_binary, y_test):
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred_binary).ravel()
     specificity = tn / (tn + fp)
@@ -237,6 +243,7 @@ def binary_metric_table(y_pred_binary, y_test):
 
 
 ################################## Multiclass Case ####################################
+@st.cache_resource(experimental_allow_widgets=True)
 def multiclass_cm(y_pred_binary, y_test, le):
     cm = confusion_matrix(y_test, y_pred_binary)
     cm_df = pd.DataFrame(
@@ -264,6 +271,7 @@ def multiclass_cm(y_pred_binary, y_test, le):
     return heatmap
 
 
+@st.cache_resource(experimental_allow_widgets=True)
 def multiclass_roc(y_pred, y_test, le):
     fpr = dict()
     tpr = dict()
@@ -313,10 +321,11 @@ def multiclass_roc(y_pred, y_test, le):
     return roc_plot + diagonal_line
 
 
-### Kell majd egy multiclass precison-recall, és metrikák!
+### TODO Kell majd egy multiclass precison-recall, és metrikák!
 
 
 ############################# Regression case ######################################
+@st.cache_resource(experimental_allow_widgets=True)
 def reg_table(y_pred, y_test):
     mse = mean_squared_error(y_test, y_pred)
     metric_df = pd.DataFrame({"Metric": ["Mean Squared Error"], "Value": [mse]})
@@ -324,6 +333,7 @@ def reg_table(y_pred, y_test):
 
 
 ########################## Same for all 3 cases ####################################
+@st.cache_resource(experimental_allow_widgets=True)
 def feature_importance(model, X_test, y_test):
     imp = permutation_importance(model, X_test, y_test, n_repeats=2, random_state=42)
     importances = pd.Series(imp.importances_mean)
