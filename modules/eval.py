@@ -80,19 +80,6 @@ def preproc(problem_type):
     return (model, y_pred, y_pred_binary, X_test, y_test, le)
 
 
-# added leading underscore to model param, since streamlit couldn't hash it
-@st.cache_data
-def predict1(_model, X_test, problem_type):
-    if problem_type == "Regression":
-        y_pred = _model.predict(X_test)
-        y_pred_binary = "anyad"
-    else:
-        y_pred = _model.predict_proba(X_test)
-        y_pred_binary = _model.predict(X_test)
-
-    return y_pred, y_pred_binary
-
-
 ############################ Binary Case ####################################
 @st.cache_resource(experimental_allow_widgets=True)
 def binary_roc(y_pred, y_test):
@@ -321,7 +308,6 @@ def multiclass_roc(y_pred, y_test, _le):
     return roc_plot + diagonal_line
 
 
-
 ############################# Regression case ######################################
 @st.cache_data
 def reg_table(y_pred, y_test):
@@ -329,17 +315,24 @@ def reg_table(y_pred, y_test):
     metric_df = pd.DataFrame({"Metric": ["Mean Squared Error"], "Value": [mse]})
     return metric_df
 
+
 @st.cache_resource(experimental_allow_widgets=True)
 def reg_residuals(y_pred, y_test):
-    residuals = list(y_test.iloc[:,0].to_numpy()) - y_pred
-    plot_df = pd.DataFrame({'Actual': list(y_test.iloc[:,0].to_numpy()), 
-                            'Predicted': y_pred, 'Residuals': list(residuals)})
-    residual_plot = alt.Chart(plot_df.reset_index()).mark_circle(size=60).encode(
-        x='Predicted',
-        y='Residuals',
-        tooltip=['Actual', 'Predicted', 'Residuals']
-    ).properties(
-        title='Residual Plot',width=500, height=500
+    residuals = list(y_test.iloc[:, 0].to_numpy()) - y_pred
+    plot_df = pd.DataFrame(
+        {
+            "Actual": list(y_test.iloc[:, 0].to_numpy()),
+            "Predicted": y_pred,
+            "Residuals": list(residuals),
+        }
+    )
+    residual_plot = (
+        alt.Chart(plot_df.reset_index())
+        .mark_circle(size=60)
+        .encode(
+            x="Predicted", y="Residuals", tooltip=["Actual", "Predicted", "Residuals"]
+        )
+        .properties(title="Residual Plot", width=500, height=500)
     )
     return residual_plot
 

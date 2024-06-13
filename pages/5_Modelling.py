@@ -102,6 +102,11 @@ if model_type == "Random forest":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
@@ -120,6 +125,11 @@ if model_type == "Random forest":
             ).fit(
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
+            )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
             )
 
             st.write(
@@ -155,6 +165,11 @@ elif model_type == "XGBoost":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
@@ -175,6 +190,11 @@ elif model_type == "XGBoost":
             ).fit(
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
+            )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
             )
 
             st.write(
@@ -204,6 +224,11 @@ elif model_type == "Linear regression":
             st.session_state["X_train"].loc[:, feat_used],
             st.session_state["y_train"],
         )
+        st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+            st.session_state["model"],
+            st.session_state["X_test"],
+            st.session_state["problem_type"],
+        )
 
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
@@ -226,12 +251,16 @@ elif model_type == "Logistic regression":
             st.session_state["X_train"].loc[:, feat_used],
             st.session_state["y_train"],
         )
+        st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+            st.session_state["model"],
+            st.session_state["X_test"],
+            st.session_state["problem_type"],
+        )
 
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
         st.balloons()
-    # TODO write out: your model is in training + time passed
 
 
 # Drop unused features from session_state X_test
