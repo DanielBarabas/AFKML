@@ -1,9 +1,108 @@
 import streamlit as st
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from xgboost import XGBClassifier, XGBRegressor
+from sklearn.model_selection import StratifiedKFold, KFold, cross_val_score
+from hyperopt import hp, fmin, tpe, Trials, STATUS_OK
 import modules.modelling as m
+
+####### Definitions for hyperparameters optimiztation #######
+
+trials = Trials()
+strat_kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+
+xgb_space = {
+    "n_estimators": hp.choice("n_estimators", np.arange(10, 1000, 10, dtype="int")),
+    "max_depth": hp.choice("max_depth", np.arange(1, 15, 1, dtype=int)),
+    "learning_rate": hp.uniform("learning_rate", 0.01, 1),
+    "gamma": hp.uniform("gamma", 0, 10e1),
+    "subsample": hp.uniform("subsample", 0.5, 1),
+    "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1),
+    "reg_lambda": hp.uniform("reg_lambda", 0, 1),
+    "reg_alpha": hp.uniform("reg_alpha", 10e-7, 10),
+    "min_child_weight": hp.choice("min_child_weight", np.arange(1, 10, 1, dtype="int")),
+}
+
+rf_space = {
+    "n_estimators": hp.choice("n_estimators", np.arange(10, 500, 10, dtype="int")),
+    "max_depth": hp.choice("max_depth", np.arange(1, 10, 1, dtype=int)),
+    "max_features": hp.choice("max_features", [None, "sqrt", "log2"]),
+    "min_samples_split": hp.choice(
+        "min_samples_split", np.arange(2, 20, 1, dtype="int")
+    ),
+    "min_samples_leaf": hp.choice("min_samples_leaf", np.arange(1, 20, 1, dtype="int")),
+}
+
+
+def rf_class_obj_func(params):
+    rf = RandomForestClassifier(**params)
+    score = cross_val_score(
+        estimator=rf,
+        X=st.session_state["X_train"],
+        y=st.session_state["y_train"],
+        cv=strat_kfold,
+        scoring="accuracy",
+        n_jobs=-1,
+    ).mean()
+
+    loss = -score
+
+    return {"loss": loss, "params": params, "status": STATUS_OK}
+
+
+def rf_reg_obj_func(params):
+    rf = RandomForestRegressor(**params)
+    score = cross_val_score(
+        estimator=rf,
+        X=st.session_state["X_train"],
+        y=st.session_state["y_train"],
+        cv=kfold,
+        scoring="neg_mean_squared_error",
+        n_jobs=-1,
+    ).mean()
+
+    # loss is negative score
+    loss = -score
+
+    return {"loss": loss, "params": params, "status": STATUS_OK}
+
+
+def xgb_class_obj_func(params):
+    xgboost = XGBClassifier(**params)
+    score = cross_val_score(
+        estimator=xgboost,
+        X=st.session_state["X_train"],
+        y=st.session_state["y_train"],
+        cv=strat_kfold,
+        scoring="accuracy",
+        n_jobs=-1,
+    ).mean()
+
+    loss = -score
+
+    return {"loss": loss, "params": params, "status": STATUS_OK}
+
+
+def xgb_reg_obj_func(params):
+    xgboost = XGBRegressor(**params, objective="reg:squarederror")
+    score = cross_val_score(
+        estimator=xgboost,
+        X=st.session_state["X_train"],
+        y=st.session_state["y_train"],
+        cv=kfold,
+        scoring="neg_mean_squared_error",
+        n_jobs=-1,
+    ).mean()
+
+    loss = -score
+
+    return {"loss": loss, "params": params, "status": STATUS_OK}
+
+
+####### Page content #######
 
 
 st.set_page_config(page_title="Modelling", layout="wide")
@@ -102,11 +201,17 @@ if model_type == "Random forest":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
             st.balloons()
+
     else:
         if st.button("Run model", key="rfc"):
             st.session_state["model"] = RandomForestClassifier(
@@ -121,11 +226,30 @@ if model_type == "Random forest":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
             st.balloons()
+
+        if st.button("Run hyperparameter optimization", key="rfc_opt"):
+            best = fmin(
+                fn=rf_class_obj_func,
+                space=rf_space,
+                algo=tpe.suggest,
+                max_evals=50,
+                trials=trials,
+            )
+
+            st.write("Best hyperparameters found:")
+            for key, value in best.items():
+                st.write(f"  - {key}: {value:.2f}")
+
 elif model_type == "XGBoost":
     (
         n_estimators,
@@ -155,11 +279,30 @@ elif model_type == "XGBoost":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
             st.balloons()
+
+        if st.button("Run hyperparameter optimization", key="xgbr_opt"):
+            best = fmin(
+                fn=xgb_reg_obj_func,
+                space=xgb_space,
+                algo=tpe.suggest,
+                max_evals=100,
+                trials=trials,
+            )
+
+            st.write("Best hyperparameters found:")
+            for key, value in best.items():
+                st.write(f"  - {key}: {value:.2f}")
+
     else:
         if st.button("Run model", key="xgbc"):
             st.session_state["model"] = XGBClassifier(
@@ -176,17 +319,30 @@ elif model_type == "XGBoost":
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
             )
+            st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+                st.session_state["model"],
+                st.session_state["X_test"],
+                st.session_state["problem_type"],
+            )
 
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
-
-            st.text(f"Value of n_estimators: {n_estimators}")
-            st.text(f"Value of max_depth: {max_depth}")
-            st.text(f"Value of learning_rate: {learning_rate}")
-            st.text(f"Value of subs: {subsample}")
-            st.text(f"Value of cols: {colsample_bytree}")
             st.balloons()
+
+        if st.button("Run hyperparameter optimization", key="xgbc_opt"):
+            best = fmin(
+                fn=xgb_class_obj_func,
+                space=xgb_space,
+                algo=tpe.suggest,
+                max_evals=100,
+                trials=trials,
+            )
+
+            st.write("Best hyperparameters found:")
+            for key, value in best.items():
+                st.write(f"  - {key}: {value:.2f}")
+
 elif model_type == "Linear regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -204,11 +360,17 @@ elif model_type == "Linear regression":
             st.session_state["X_train"].loc[:, feat_used],
             st.session_state["y_train"],
         )
+        st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+            st.session_state["model"],
+            st.session_state["X_test"],
+            st.session_state["problem_type"],
+        )
 
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
         st.balloons()
+
 elif model_type == "Logistic regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -226,12 +388,16 @@ elif model_type == "Logistic regression":
             st.session_state["X_train"].loc[:, feat_used],
             st.session_state["y_train"],
         )
+        st.session_state["y_pred"], st.session_state["y_pred_binary"] = m.predict1(
+            st.session_state["model"],
+            st.session_state["X_test"],
+            st.session_state["problem_type"],
+        )
 
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
         st.balloons()
-    # TODO write out: your model is in training + time passed
 
 
 # Drop unused features from session_state X_test
