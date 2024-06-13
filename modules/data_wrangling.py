@@ -76,7 +76,7 @@ def cast_dtype(
 
 
 @st.cache_data
-def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple:
+def find_cat_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple:
     """_summary_
 
     Args:
@@ -97,6 +97,18 @@ def find_valid_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple
     return valid_cols
 
 
+def find_cont_cols(df):
+    numeric_cols = df.select_dtypes(include=[np.number])
+    # Filter out columns with only 0s and 1s
+    non_binary_numeric_cols = numeric_cols.loc[
+        :,
+        ~(numeric_cols.nunique() == 2)
+        & ~((numeric_cols == 0) | (numeric_cols == 1)).all(),
+    ]
+
+    return non_binary_numeric_cols.columns.tolist()
+
+
 # TODO KILL?
 def find_label_type(df: pd.DataFrame, target_var: str, dtype_map: dict) -> str:
     """Returns "Numeric" or "Categorical" for the target variable. This is needed for the target encoding.
@@ -113,6 +125,7 @@ def find_label_type(df: pd.DataFrame, target_var: str, dtype_map: dict) -> str:
     return y_type
 
 
+############################### Encoding ##################################
 @st.cache_data
 def one_hot_encoding(df: pd.DataFrame, x_column: str) -> tuple:
     """Encodes one column using onehot encoding
@@ -211,7 +224,7 @@ def create_encoded_column(
 
 
 @st.cache_data
-def create_model_df(
+def create_cat_df(
     res_df: pd.DataFrame,
     df: pd.DataFrame,
     target_var: str,
@@ -230,7 +243,8 @@ def create_model_df(
     Returns:
         pd.DataFrame: Encoded feature (X) DataFrame
     """
-    model_df = pd.concat(
+    model_df = pd.DataFrame()
+    """model_df = pd.concat(
         [
             df[col]
             for col in [
@@ -240,7 +254,7 @@ def create_model_df(
             ]
         ],
         axis=1,
-    )
+    )"""
     for _, row in res_df.iterrows():
         encoded_col, encoded_colname = create_encoded_column(
             encoding=row["Encoding"],
@@ -258,6 +272,71 @@ def create_model_df(
     if target_var in model_df.columns:
         model_df = model_df.drop(target_var, axis=1)
     return model_df
+
+
+###################### Continous feature engineering ###############
+def log_column(df, column):
+    """
+    Transform the given column to its logarithm.
+    """
+    col = np.log(df[column])
+    return col
+
+
+def standardize_column(df, column):
+    """
+    Standardize the given column.
+    """
+    mean = df[column].mean()
+    std = df[column].std()
+    col = (df[column] - mean) / std
+    return col
+
+
+def cut_column(df, column, lower_percent=None, upper_percent=None):
+    """
+    Cut the values in the given column based on the lower and upper bounds.
+    If a number is below the lower bound, set it to the lower bound.
+    If a number is above the upper bound, set it to the upper bound.
+    """
+
+    if lower_percent is not None:
+        lower_bound = df[column].quantile(lower_percent / 100)
+        col = np.where(df[column] < lower_bound, lower_bound, df[column])
+
+    # Calculate the upper bound as a percentage of the column values
+    if upper_percent is not None:
+        upper_bound = df[column].quantile(upper_percent / 100)
+        col = np.where(df[column] > upper_bound, upper_bound, df[column])
+    return col
+
+
+@st.cache_data
+def create_cont_df(original_df, cont_cols, cont_res_df, cut_size):
+    cont_df = original_df[cont_cols]
+    for _, row in cont_res_df.iterrows():
+        if row["Transformation"] == "None":
+            cont_df[row["Variable"]] = original_df[row["Variable"]]
+        elif row["Transformation"] == "Log":
+            if cont_df[row["Variable"]].min() <= 0:
+                pass
+            else:
+                cont_df[row["Variable"]] = log_column(cont_df, row["Variable"])
+
+        elif row["Transformation"] == "Standarize":
+            cont_df[row["Variable"]] = standardize_column(cont_df, row["Variable"])
+
+        elif row["Transformation"] == "Cut":
+            cont_df[row["Variable"]] = cut_column(
+                cont_df, row["Variable"], cut_size[0], cut_size[1]
+            )
+
+    return cont_df
+
+
+@st.cache_data
+def create_x_df(cont_df, cat_df):
+    return pd.concat([cont_df, cat_df], axis=1)
 
 
 ################### PCA ########################

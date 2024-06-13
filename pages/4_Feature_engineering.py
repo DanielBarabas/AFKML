@@ -3,13 +3,16 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from st_aggrid import GridOptionsBuilder, AgGrid
 from modules.data_wrangling import (
-    find_valid_cols,
+    find_cat_cols,
     find_label_type,
-    create_model_df,
+    create_cat_df,
     filter_data,
     create_pca_before,
     create_pca_after,
     create_pca_plots,
+    find_cont_cols,
+    create_cont_df,
+    create_x_df,
 )
 
 
@@ -31,7 +34,7 @@ if "df" not in st.session_state:
     st.stop()
 
 
-st.title("Encode variables")
+st.title("Feature Engineering")
 
 
 st.header("Choose target variable")
@@ -75,9 +78,9 @@ st.write(
 )
 
 
-valid_cols = find_valid_cols(st.session_state["df"], target_var, dtype_map_inverse)
+cat_cols = find_cat_cols(st.session_state["df"], target_var, dtype_map_inverse)
 y_type = find_label_type(st.session_state["df"], target_var, dtype_map_inverse)
-original_encodings = pd.DataFrame({"Variable": valid_cols, "Encoding": "One-Hot"})
+original_encodings = pd.DataFrame({"Variable": cat_cols, "Encoding": "One-Hot"})
 
 
 st.header("Encode categorical variables")
@@ -97,11 +100,46 @@ response = AgGrid(
     original_encodings,
     gridOptions=vgo,
 )
-
+cat_res_df = response.data
 # Create X df
-st.session_state["X"] = create_model_df(
-    response.data, st.session_state["df"], target_var, y_type, dtype_map_inverse
+cat_df = create_cat_df(
+    cat_res_df, st.session_state["df"], target_var, y_type, dtype_map_inverse
 )
+st.header("Transfrorm continous variables")
+st.write(
+    "Keep in mind that any changes here automatically removes all principal components from your data!"
+)
+cont_cols = find_cont_cols(st.session_state["df"])
+
+cut_size = st.slider(
+    "Select the upper and lower percentiles that you want to cut for the chosen variables",
+    min_value=0,
+    max_value=100,
+    value=[1, 99],
+)
+
+settings = ("None", "Cut", "Log", "Standarize")
+original_settings = pd.DataFrame({"Variable": cont_cols, "Transformation": "None"})
+
+
+gb = GridOptionsBuilder.from_dataframe(original_settings)
+gb.configure_column(
+    "Transformation",
+    editable=True,
+    cellEditor="agSelectCellEditor",
+    cellEditorParams={"values": settings},
+)
+
+vgo = gb.build()
+response = AgGrid(
+    original_settings,
+    gridOptions=vgo,
+)
+
+cont_res_df = response.data
+cont_df = create_cont_df(st.session_state["df"], cont_cols, cont_res_df, cut_size)
+st.session_state["X"] = create_x_df(cont_df, cat_df)
+st.write(st.session_state["X"])
 
 if st.toggle(label="PCA"):
     variance_df = None
@@ -138,11 +176,5 @@ if st.toggle(label="PCA"):
         if st.button(
             label="Remove Principal Components (and add back the original features)"
         ):
-            st.session_state["X"] = create_model_df(
-                response.data,
-                st.session_state["df"],
-                target_var,
-                y_type,
-                dtype_map_inverse,
-            )
+            st.session_state["X"] = create_x_df(cont_df, cat_df)
             st.write(st.session_state["X"].head())
