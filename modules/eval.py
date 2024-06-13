@@ -203,7 +203,7 @@ def binary_cm(y_pred_binary, y_test):
     return cm_chart + cm_text
 
 
-@st.cache_resource(experimental_allow_widgets=True)
+@st.cache_data
 def binary_metric_table(y_pred_binary, y_test):
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred_binary).ravel()
     specificity = tn / (tn + fp)
@@ -321,15 +321,27 @@ def multiclass_roc(y_pred, y_test, _le):
     return roc_plot + diagonal_line
 
 
-### TODO Kell majd egy multiclass precison-recall, és metrikák!
-
 
 ############################# Regression case ######################################
-@st.cache_resource(experimental_allow_widgets=True)
+@st.cache_data
 def reg_table(y_pred, y_test):
     mse = mean_squared_error(y_test, y_pred)
     metric_df = pd.DataFrame({"Metric": ["Mean Squared Error"], "Value": [mse]})
     return metric_df
+
+@st.cache_resource(experimental_allow_widgets=True)
+def reg_residuals(y_pred, y_test):
+    residuals = list(y_test.iloc[:,0].to_numpy()) - y_pred
+    plot_df = pd.DataFrame({'Actual': list(y_test.iloc[:,0].to_numpy()), 
+                            'Predicted': y_pred, 'Residuals': list(residuals)})
+    residual_plot = alt.Chart(plot_df.reset_index()).mark_circle(size=60).encode(
+        x='Predicted',
+        y='Residuals',
+        tooltip=['Actual', 'Predicted', 'Residuals']
+    ).properties(
+        title='Residual Plot',width=500, height=500
+    )
+    return residual_plot
 
 
 ########################## Same for all 3 cases ####################################

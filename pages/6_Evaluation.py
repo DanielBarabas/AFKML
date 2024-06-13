@@ -9,6 +9,7 @@ from modules.eval import (
     multiclass_roc,
     reg_table,
     predict1,
+    reg_residuals
 )
 
 
@@ -25,6 +26,7 @@ elif "model" not in st.session_state:
 
 st.title("Model evaluation")
 
+st.write(st.session_state["y_test"].head())
 
 y_pred, y_pred_binary = predict1(
     st.session_state["model"],
@@ -32,6 +34,7 @@ y_pred, y_pred_binary = predict1(
     st.session_state["problem_type"],
 )
 
+#st.write(type(y_pred),type(st.session_state["y_test"]))
 
 if st.session_state["problem_type"] == "Binary classification":
     st.header("ROC curve")
@@ -86,6 +89,12 @@ elif st.session_state["problem_type"] == "Multiclass classification":
         )
 
 else:
+
+    st.header("Residuals")
+    if st.toggle(label="Create Residual Plot", key="reg_resids"):
+        st.altair_chart(reg_residuals(y_pred, st.session_state["y_test"]))
+
+
     st.header("Metric table")
     if st.toggle(label="Create Metric Table", key="reg_met_tab"):
         st.write(reg_table(y_pred, st.session_state["y_test"]))
