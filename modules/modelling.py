@@ -80,9 +80,6 @@ def xbg_param_input() -> tuple:
     min_child_weight = st.number_input(
         "min_child_weight", min_value=0.0, value=1.0, step=0.1
     )
-    scale_pos_weight = st.number_input(
-        "scale_pos_weight", min_value=0.0, value=1.0, step=0.1
-    )
 
     return (
         n_estimators,
@@ -94,7 +91,6 @@ def xbg_param_input() -> tuple:
         reg_lambda,
         reg_alpha,
         min_child_weight,
-        scale_pos_weight,
     )
 
 

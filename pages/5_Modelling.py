@@ -67,7 +67,6 @@ st.write("Number of rows in training set", len(st.session_state["X_train"]))
 st.write("Number of rows in test set", len(st.session_state["X_test"]))
 
 use_all = st.checkbox("Use all features?", value=True)
-# TODO here the encoded cat variables might cause an issue
 if use_all:
     feat_used = st.session_state["X_train"].columns
 else:
@@ -107,6 +106,7 @@ if model_type == "Random forest":
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
+            st.balloons()
     else:
         if st.button("Run model", key="rfc"):
             st.session_state["model"] = RandomForestClassifier(
@@ -125,7 +125,7 @@ if model_type == "Random forest":
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
-
+            st.balloons()
 elif model_type == "XGBoost":
     (
         n_estimators,
@@ -137,7 +137,6 @@ elif model_type == "XGBoost":
         reg_lambda,
         reg_alpha,
         min_child_weight,
-        scale_pos_weight,
     ) = m.xbg_param_input()
 
     if st.session_state["problem_type"] == "Regression":
@@ -152,7 +151,6 @@ elif model_type == "XGBoost":
                 reg_lambda=reg_lambda,
                 reg_alpha=reg_alpha,
                 min_child_weight=min_child_weight,
-                scale_pos_weight=scale_pos_weight,
             ).fit(
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
@@ -161,7 +159,7 @@ elif model_type == "XGBoost":
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
-
+            st.balloons()
     else:
         if st.button("Run model", key="xgbc"):
             st.session_state["model"] = XGBClassifier(
@@ -174,7 +172,6 @@ elif model_type == "XGBoost":
                 reg_lambda=reg_lambda,
                 reg_alpha=reg_alpha,
                 min_child_weight=min_child_weight,
-                scale_pos_weight=scale_pos_weight,
             ).fit(
                 st.session_state["X_train"].loc[:, feat_used],
                 st.session_state["y_train"],
@@ -183,6 +180,13 @@ elif model_type == "XGBoost":
             st.write(
                 "Model training is complete go to evaluation page to see model diagnostics"
             )
+
+            st.text(f"Value of n_estimators: {n_estimators}")
+            st.text(f"Value of max_depth: {max_depth}")
+            st.text(f"Value of learning_rate: {learning_rate}")
+            st.text(f"Value of subs: {subsample}")
+            st.text(f"Value of cols: {colsample_bytree}")
+            st.balloons()
 elif model_type == "Linear regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -204,6 +208,7 @@ elif model_type == "Linear regression":
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
+        st.balloons()
 elif model_type == "Logistic regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -225,4 +230,10 @@ elif model_type == "Logistic regression":
         st.write(
             "Model training is complete go to evaluation page to see model diagnostics"
         )
+        st.balloons()
     # TODO write out: your model is in training + time passed
+
+
+# Drop unused features from session_state X_test
+# Otherwise eval page will throw an error
+st.session_state["X_test"] = st.session_state["X_test"].loc[:, feat_used]
