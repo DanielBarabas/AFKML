@@ -12,6 +12,9 @@ def predict1(model, X_test, problem_type):
     return y_pred, y_pred_binary
 
 
+####### Input widget functions for hyperparameters #######
+
+
 def rf_param_input(n_features) -> tuple:
     """Gives ui to specify the parameters of random forest
 
@@ -103,11 +106,3 @@ def xbg_param_input() -> tuple:
         reg_alpha,
         min_child_weight,
     )
-
-
-def log_reg_param_input() -> tuple:
-    C = st.slider("C", min_value=0.0, max_value=1.0, value=1.0, step=0.01)
-    penalty = st.radio("penalty", options=["l1", "l2"])
-    solver = st.radio("solver", options=["liblinear", "saga"])
-
-    return C, penalty, solver
