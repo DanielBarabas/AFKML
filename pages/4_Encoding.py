@@ -12,8 +12,7 @@ from modules.data_wrangling import (
     create_pca_plots,
     find_cont_cols,
     create_cont_df,
-    create_x_df
-
+    create_x_df,
 )
 
 
@@ -116,12 +115,11 @@ cut_size = st.slider(
     "Select the upper and lower percentiles that you want to cut for the chosen variables",
     min_value=0,
     max_value=100,
-    value=[1,99],
+    value=[1, 99],
 )
 
-settings = ("None","Cut","Log","Standarize")
+settings = ("None", "Cut", "Log", "Standarize")
 original_settings = pd.DataFrame({"Variable": cont_cols, "Transformation": "None"})
-
 
 
 gb = GridOptionsBuilder.from_dataframe(original_settings)
@@ -139,8 +137,8 @@ response = AgGrid(
 )
 
 cont_res_df = response.data
-cont_df = create_cont_df(st.session_state["df"],cont_cols,cont_res_df,cut_size)
-st.session_state["X"] = create_x_df(cont_df,cat_df)
+cont_df = create_cont_df(st.session_state["df"], cont_cols, cont_res_df, cut_size)
+st.session_state["X"] = create_x_df(cont_df, cat_df)
 st.write(st.session_state["X"])
 
 if st.toggle(label="PCA"):
@@ -178,5 +176,5 @@ if st.toggle(label="PCA"):
         if st.button(
             label="Remove Principal Components (and add back the original features)"
         ):
-            st.session_state["X"] = create_x_df(cont_df,cat_df)
+            st.session_state["X"] = create_x_df(cont_df, cat_df)
             st.write(st.session_state["X"].head())
