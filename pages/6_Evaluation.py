@@ -26,7 +26,6 @@ elif "model" not in st.session_state:
 
 st.title("Model evaluation")
 
-st.write(st.session_state["y_test"].head())
 
 y_pred, y_pred_binary = predict1(
     st.session_state["model"],
