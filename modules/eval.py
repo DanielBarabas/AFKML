@@ -1,13 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from xgboost import XGBClassifier, XGBRegressor
-
-"""from modules.data_wrangling import (
-    create_model_df,
-)"""
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import (
     roc_curve,
     auc,
@@ -18,67 +11,7 @@ from sklearn.metrics import (
     mean_squared_error,
 )
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import LabelEncoder
 import altair as alt
-
-"""
-# This won't be needed in the final version
-def preproc(problem_type):
-    if problem_type == "Binary classification":
-        df = pd.read_csv(
-            "C:\Projects\Rajk\prog_2\project\prog_machine_project\data\drinking.csv"
-        )
-        res_df = pd.DataFrame({"Variable": ["sex"], "Encoding": ["One-Hot"]})
-        X = create_model_df(res_df, df, "DRK_YN", "Categorical")
-        le = LabelEncoder()
-        y = le.fit_transform(df["DRK_YN"])
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-        model = XGBClassifier(n_estimators=30, max_depth=2)
-        model.fit(X_train, y_train)
-        y_pred = model.predict_proba(X_test)
-        y_pred_binary = model.predict(X_test)
-
-    elif problem_type == "Multiclass classification":
-        df = pd.read_csv(
-            "C:\Projects\Rajk\prog_2\project\prog_machine_project\data\drinking.csv"
-        )
-        res_df = pd.DataFrame(
-            {"Variable": ["sex", "DRK_YN"], "Encoding": ["One-Hot", "One-Hot"]}
-        )
-        X = create_model_df(res_df, df, "weight", "Categorical")
-
-        df["weight"] = df["weight"].astype(str)
-        le = LabelEncoder()
-        y = le.fit_transform(df["weight"])
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-        model = XGBClassifier(n_estimators=30, max_depth=2)
-        model.fit(X_train, y_train)
-        y_pred = model.predict_proba(X_test)
-        y_pred_binary = model.predict(X_test)
-
-    else:
-        df = pd.read_csv(
-            "C:\Projects\Rajk\prog_2\project\prog_machine_project\data\drinking.csv"
-        )
-        res_df = pd.DataFrame(
-            {"Variable": ["sex", "DRK_YN"], "Encoding": ["One-Hot", "One-Hot"]}
-        )
-        X = create_model_df(res_df, df, "hemoglobin", "Numeric")
-
-        y = df["hemoglobin"]
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-        model = XGBRegressor(n_estimators=30, max_depth=2)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        y_pred_binary = y_pred
-
-    return (model, y_pred, y_pred_binary, X_test, y_test, le)"""
 
 
 ############################ Binary Case ####################################

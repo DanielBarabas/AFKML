@@ -21,7 +21,6 @@ dtype_map_inverse = {
     "category": "Categorical",
     "object": "Categorical",
     "int64": "Numeric",
-    "datetime64[ns]": "Date",
 }
 encodings = ("One-Hot", "Target", "Ordinal")
 
