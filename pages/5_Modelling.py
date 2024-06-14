@@ -64,7 +64,6 @@ def rf_reg_obj_func(params):
         n_jobs=-1,
     ).mean()
 
-    # loss is negative score
     loss = -score
 
     return {"loss": loss, "params": params, "status": STATUS_OK}
@@ -129,6 +128,7 @@ def my_train_test_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=72)
 
 
+# Preparation
 st.header("Preparation")
 st.write(
     f'You are going to do {st.session_state["problem_type"]} since the target variable, {st.session_state["y_colname"]} is {st.session_state["y_type"]}'
@@ -175,6 +175,7 @@ else:
     )
 
 
+# Hyperparameters
 st.header("Hyperparameters")
 if model_type == "Random forest":
     (
@@ -187,8 +188,9 @@ if model_type == "Random forest":
         n_jobs,
     ) = m.rf_param_input(n_features)
 
+    # Rf regression
     if st.session_state["problem_type"] == "Regression":
-        if st.button("Run model", key="rfr"):
+        if st.button("Train model", key="rfr"):
             st.session_state["model"] = RandomForestRegressor(
                 n_estimators=n_estimators,
                 max_depth=max_depth,
@@ -212,8 +214,45 @@ if model_type == "Random forest":
             )
             st.balloons()
 
+        # Hyperparameter optimization
+        if st.button("Run hyperparameter optimization", key="rfr_opt"):
+            st.session_state["best_params"] = fmin(
+                fn=rf_reg_obj_func,
+                space=rf_space,
+                algo=tpe.suggest,
+                max_evals=50,
+                trials=trials,
+            )
+
+            st.write("Best hyperparameters found:")
+            for key, value in st.session_state["best_params"].items():
+                st.write(f"  - {key}: {value:.2f}")
+
+        # Train with best params
+        if "best_params" in st.session_state:
+            if st.button("Train model with best hyperparameters", key="rfr_best"):
+                st.session_state["model"] = RandomForestRegressor(
+                    **st.session_state["best_params"]
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
+                st.session_state["y_pred"], st.session_state["y_pred_binary"] = (
+                    m.predict1(
+                        st.session_state["model"],
+                        st.session_state["X_test"],
+                        st.session_state["problem_type"],
+                    )
+                )
+
+                st.write(
+                    "Model training is complete go to evaluation page to see model diagnostics"
+                )
+                st.balloons()
+
+    # Rf classification
     else:
-        if st.button("Run model", key="rfc"):
+        if st.button("Train model", key="rfc"):
             st.session_state["model"] = RandomForestClassifier(
                 n_estimators=n_estimators,
                 max_depth=max_depth,
@@ -237,8 +276,9 @@ if model_type == "Random forest":
             )
             st.balloons()
 
+        # Hyperparameter optimization
         if st.button("Run hyperparameter optimization", key="rfc_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=rf_class_obj_func,
                 space=rf_space,
                 algo=tpe.suggest,
@@ -247,9 +287,32 @@ if model_type == "Random forest":
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
+        # Train with best params
+        if "best_params" in st.session_state:
+            if st.button("Train model with best hyperparameters", key="rfc_best"):
+                st.session_state["model"] = RandomForestClassifier(
+                    **st.session_state["best_params"]
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
+                st.session_state["y_pred"], st.session_state["y_pred_binary"] = (
+                    m.predict1(
+                        st.session_state["model"],
+                        st.session_state["X_test"],
+                        st.session_state["problem_type"],
+                    )
+                )
+
+                st.write(
+                    "Model training is complete go to evaluation page to see model diagnostics"
+                )
+                st.balloons()
+
+# Xgboost
 elif model_type == "XGBoost":
     (
         n_estimators,
@@ -263,8 +326,9 @@ elif model_type == "XGBoost":
         min_child_weight,
     ) = m.xbg_param_input()
 
+    # Xgb regression
     if st.session_state["problem_type"] == "Regression":
-        if st.button("Run model", key="xgbr"):
+        if st.button("Train model", key="xgbr"):
             st.session_state["model"] = XGBRegressor(
                 n_estimators=n_estimators,
                 max_depth=max_depth,
@@ -290,21 +354,45 @@ elif model_type == "XGBoost":
             )
             st.balloons()
 
+        # Hyperpameter optimization
         if st.button("Run hyperparameter optimization", key="xgbr_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=xgb_reg_obj_func,
                 space=xgb_space,
                 algo=tpe.suggest,
-                max_evals=100,
+                max_evals=50,
                 trials=trials,
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
+        # Train with best params
+        if "best_params" in st.session_state:
+            if st.button("Train model with best hyperparameters", key="xgbr_best"):
+                st.session_state["model"] = XGBRegressor(
+                    **st.session_state["best_params"]
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
+                st.session_state["y_pred"], st.session_state["y_pred_binary"] = (
+                    m.predict1(
+                        st.session_state["model"],
+                        st.session_state["X_test"],
+                        st.session_state["problem_type"],
+                    )
+                )
+
+                st.write(
+                    "Model training is complete go to evaluation page to see model diagnostics"
+                )
+                st.balloons()
+
+    # Xgb classification
     else:
-        if st.button("Run model", key="xgbc"):
+        if st.button("Train model", key="xgbc"):
             st.session_state["model"] = XGBClassifier(
                 n_estimators=n_estimators,
                 max_depth=max_depth,
@@ -330,19 +418,43 @@ elif model_type == "XGBoost":
             )
             st.balloons()
 
+        # Hyperparameter optimization
         if st.button("Run hyperparameter optimization", key="xgbc_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=xgb_class_obj_func,
                 space=xgb_space,
                 algo=tpe.suggest,
-                max_evals=100,
+                max_evals=50,
                 trials=trials,
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
+        # Train with best params
+        if "best_params" in st.session_state:
+            if st.button("Train model with best hyperparameters", key="xgbc_best"):
+                st.session_state["model"] = XGBClassifier(
+                    **st.session_state["best_params"]
+                ).fit(
+                    st.session_state["X_train"].loc[:, feat_used],
+                    st.session_state["y_train"],
+                )
+                st.session_state["y_pred"], st.session_state["y_pred_binary"] = (
+                    m.predict1(
+                        st.session_state["model"],
+                        st.session_state["X_test"],
+                        st.session_state["problem_type"],
+                    )
+                )
+
+                st.write(
+                    "Model training is complete go to evaluation page to see model diagnostics"
+                )
+                st.balloons()
+
+# Linear regression
 elif model_type == "Linear regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -353,7 +465,7 @@ elif model_type == "Linear regression":
     else:
         n_jobs = None
 
-    if st.button("Run model", key="lr"):
+    if st.button("Train model", key="lr"):
         st.session_state["model"] = LinearRegression(
             fit_intercept=fit_intercept, n_jobs=n_jobs
         ).fit(
@@ -371,6 +483,7 @@ elif model_type == "Linear regression":
         )
         st.balloons()
 
+# Logistic regression
 elif model_type == "Logistic regression":
     fit_intercept = st.checkbox("Fit intercept", value=True)
     paralel = st.checkbox(
@@ -381,7 +494,7 @@ elif model_type == "Logistic regression":
     else:
         n_jobs = None
 
-    if st.button("Run model", key="logr"):
+    if st.button("Train model", key="logr"):
         st.session_state["model"] = LogisticRegression(
             fit_intercept=fit_intercept, n_jobs=n_jobs
         ).fit(
