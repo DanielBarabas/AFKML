@@ -108,7 +108,7 @@ st.header("Transfrorm continous variables")
 st.write(
     "Keep in mind that any changes here automatically removes all principal components from your data!"
 )
-cont_cols = find_cont_cols(st.session_state["df"])
+cont_cols = find_cont_cols(st.session_state["df"],target_var    )
 
 cut_size = st.slider(
     "Select the upper and lower percentiles that you want to cut for the chosen variables",

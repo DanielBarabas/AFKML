@@ -93,7 +93,7 @@ def find_cat_cols(df: pd.DataFrame, target_var: str, dtype_map: dict) -> tuple:
     return valid_cols
 
 
-def find_cont_cols(df):
+def find_cont_cols(df,target_var):
     numeric_cols = df.select_dtypes(include=[np.number])
     # Filter out columns with only 0s and 1s
     non_binary_numeric_cols = numeric_cols.loc[
@@ -101,8 +101,9 @@ def find_cont_cols(df):
         ~(numeric_cols.nunique() == 2)
         & ~((numeric_cols == 0) | (numeric_cols == 1)).all(),
     ]
-
-    return non_binary_numeric_cols.columns.tolist()
+    cont_cols = [col for col in non_binary_numeric_cols.columns.tolist() if col != target_var]
+    
+    return cont_cols
 
 
 # TODO KILL?
