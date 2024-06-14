@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from xgboost import XGBClassifier, XGBRegressor
-from modules.data_wrangling import (
+
+"""from modules.data_wrangling import (
     create_model_df,
-)
+)"""
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import (
@@ -20,7 +21,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import LabelEncoder
 import altair as alt
 
-
+"""
 # This won't be needed in the final version
 def preproc(problem_type):
     if problem_type == "Binary classification":
@@ -77,7 +78,7 @@ def preproc(problem_type):
         y_pred = model.predict(X_test)
         y_pred_binary = y_pred
 
-    return (model, y_pred, y_pred_binary, X_test, y_test, le)
+    return (model, y_pred, y_pred_binary, X_test, y_test, le)"""
 
 
 ############################ Binary Case ####################################
@@ -193,12 +194,12 @@ def binary_cm(y_pred_binary, y_test):
 @st.cache_data
 def binary_metric_table(y_pred_binary, y_test):
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred_binary).ravel()
-    specificity = tn / (tn + fp)
-    precision = tp / (fp + tp)
-    accuracy = (tn + tp) / (tn + fp + fn + tp)
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    precision = tp / (fp + tp) if (fp + tp) > 0 else 0
+    accuracy = (tn + tp) / (tn + fp + fn + tp) if (tn + fp + fn + tp) > 0 else 0
     balanced_accuracy = balanced_accuracy_score(y_test, y_pred_binary)
-    negative_predictive_value = tn / (tn + fn)
-    recall = tp / (tp + fn)
+    negative_predictive_value = tn / (tn + fn) if (tn + fn) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
     f1 = f1_score(y_test, y_pred_binary)
     mse = mean_squared_error(y_test, y_pred_binary)
 
@@ -306,6 +307,46 @@ def multiclass_roc(y_pred, y_test, _le):
     )
 
     return roc_plot + diagonal_line
+
+
+def calculate_multiclass_metrics(y_true, y_pred, class_label):
+    """
+    Calculate one-vs-all metrics for a specific class.
+    """
+    y_true_ova = np.where(y_true == class_label, 1, 0)
+    y_pred_ova = np.where(y_pred == class_label, 1, 0)
+
+    tn, fp, fn, tp = confusion_matrix(y_true_ova, y_pred_ova).ravel()
+
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+    precision = tp / (fp + tp) if (fp + tp) > 0 else 0
+    accuracy = (tn + tp) / (tn + fp + fn + tp) if (tn + fp + fn + tp) > 0 else 0
+    balanced_accuracy = balanced_accuracy_score(y_true_ova, y_pred_ova)
+    negative_predictive_value = tn / (tn + fn) if (tn + fn) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1 = f1_score(y_true_ova, y_pred_ova)
+
+    return {
+        "Class": class_label,
+        "Accuracy": accuracy,
+        "Balanced accuracy": balanced_accuracy,
+        "Recall": recall,
+        "Specificity": specificity,
+        "Precision": precision,
+        "Negative Predictive Value": negative_predictive_value,
+        "F1 score": f1,
+    }
+
+
+@st.cache_data
+def create_multiclass_metric_table(y_test, y_pred, y_train):
+    classes = np.unique(y_train)
+    metrics = [
+        calculate_multiclass_metrics(y_test, y_pred, class_label)
+        for class_label in classes
+    ]
+    metrics_df = pd.DataFrame(metrics)
+    return metrics_df
 
 
 ############################# Regression case ######################################

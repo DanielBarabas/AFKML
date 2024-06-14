@@ -8,8 +8,8 @@ from modules.eval import (
     multiclass_cm,
     multiclass_roc,
     reg_table,
-    predict1,
     reg_residuals,
+    create_multiclass_metric_table,
 )
 
 
@@ -27,30 +27,40 @@ elif "model" not in st.session_state:
 st.title("Model evaluation")
 
 
-y_pred, y_pred_binary = predict1(
+"""y_pred, y_pred_binary = predict1(
     st.session_state["model"],
     st.session_state["X_test"],
     st.session_state["problem_type"],
-)
+)"""
 
 # st.write(type(y_pred),type(st.session_state["y_test"]))
 
 if st.session_state["problem_type"] == "Binary classification":
     st.header("ROC curve")
     if st.toggle(label="Create ROC Curve", key="bi_roc"):
-        st.altair_chart(binary_roc(y_pred, st.session_state["y_test"]))
+        st.altair_chart(
+            binary_roc(st.session_state["y_pred"], st.session_state["y_test"])
+        )
 
     st.header("Precision-Recall Chart")
     if st.toggle(label="Create Precision-Recall Chart", key="bi_prec_rec"):
-        st.altair_chart(binary_prec_recall(y_pred, st.session_state["y_test"]))
+        st.altair_chart(
+            binary_prec_recall(st.session_state["y_pred"], st.session_state["y_test"])
+        )
 
     st.header("Confusion matrix")
     if st.toggle(label="Create Confusion Matrix", key="conf_matrix"):
-        st.altair_chart(binary_cm(y_pred_binary, st.session_state["y_test"]))
+        st.altair_chart(
+            binary_cm(st.session_state["y_pred_binary"], st.session_state["y_test"])
+        )
 
     st.header("Metric table")
     if st.toggle(label="Create Metric Table", key="bi_metric_tab"):
-        st.write(binary_metric_table(y_pred_binary, st.session_state["y_test"]))
+        st.write(
+            binary_metric_table(
+                st.session_state["y_pred_binary"], st.session_state["y_test"]
+            )
+        )
 
     st.header("Feature importance")
     if st.toggle(label="Create Feature Importance Chart", key="bi_imp"):
@@ -76,26 +86,43 @@ elif st.session_state["problem_type"] == "Multiclass classification":
     st.header("Roc curves")
     if st.toggle(label="Create ROC Curves", key="m_roc"):
         st.altair_chart(
-            multiclass_roc(y_pred, st.session_state["y_test"], st.session_state["le"])
+            multiclass_roc(
+                st.session_state["y_pred"],
+                st.session_state["y_test"],
+                st.session_state["le"],
+            )
         )
 
     st.header("Multiclass confusion matrices")
     if st.toggle(label="Create Multiclass Confusion Matrices", key="m_conf_matrix"):
         st.altair_chart(
             multiclass_cm(
-                y_pred_binary, st.session_state["y_test"], st.session_state["le"]
+                st.session_state["y_pred_binary"],
+                st.session_state["y_test"],
+                st.session_state["le"],
+            )
+        )
+    st.header("Multiclass metrics")
+    if st.toggle(label="Create Multiclass Metric Table"):
+        st.write(
+            create_multiclass_metric_table(
+                st.session_state["y_test"],
+                st.session_state["y_pred_binary"],
+                st.session_state["y_train"],
             )
         )
 
-else:
 
+else:
     st.header("Residuals")
     if st.toggle(label="Create Residual Plot", key="reg_resids"):
-        st.altair_chart(reg_residuals(y_pred, st.session_state["y_test"]))
+        st.altair_chart(
+            reg_residuals(st.session_state["y_pred"], st.session_state["y_test"])
+        )
 
     st.header("Metric table")
     if st.toggle(label="Create Metric Table", key="reg_met_tab"):
-        st.write(reg_table(y_pred, st.session_state["y_test"]))
+        st.write(reg_table(st.session_state["y_pred"], st.session_state["y_test"]))
 
     st.header("Feature importance")
     if st.toggle(label="Create Feature Importance Chart", key="reg_imp"):
