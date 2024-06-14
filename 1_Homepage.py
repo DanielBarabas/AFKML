@@ -16,14 +16,12 @@ dtype_map_inverse = {
 st.set_page_config(page_title="Home page", layout="wide")
 st.title("Data Upload page")
 
-
+# File upload
 user_file = st.file_uploader(
     label="You can upload the data here.", type=["csv", "xlsx"]
 )
 typelist = ("Numeric", "Categorical")
 
-
-# TODO what if user wants to upload another data? - session state if statement doesn't allow that (create refresh page button)
 if user_file is not None:
     try:
         if "df" not in st.session_state:
@@ -73,5 +71,6 @@ if "df" in st.session_state:
         df, orig_dict = dw.cast_dtype(
             st.session_state["df"], orig_dict, res_dict, dtype_map
         )
-    except:
+    except Exception as e:
+        print(e)
         st.write("Not a valid type!")

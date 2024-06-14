@@ -26,15 +26,7 @@ elif "model" not in st.session_state:
 
 st.title("Model evaluation")
 
-
-"""y_pred, y_pred_binary = predict1(
-    st.session_state["model"],
-    st.session_state["X_test"],
-    st.session_state["problem_type"],
-)"""
-
-# st.write(type(y_pred),type(st.session_state["y_test"]))
-
+# Biclass
 if st.session_state["problem_type"] == "Binary classification":
     st.header("ROC curve")
     if st.toggle(label="Create ROC Curve", key="bi_roc"):
@@ -72,6 +64,7 @@ if st.session_state["problem_type"] == "Binary classification":
             )
         )
 
+# Multiclass
 elif st.session_state["problem_type"] == "Multiclass classification":
     st.header("Feature importance")
     if st.toggle(label="Create Feature Importance Chart", key="m_imp"):
@@ -112,7 +105,7 @@ elif st.session_state["problem_type"] == "Multiclass classification":
             )
         )
 
-
+# Regression
 else:
     st.header("Residuals")
     if st.toggle(label="Create Residual Plot", key="reg_resids"):
