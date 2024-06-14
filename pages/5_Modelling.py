@@ -216,7 +216,7 @@ if model_type == "Random forest":
 
         # Hyperparameter optimization
         if st.button("Run hyperparameter optimization", key="rfr_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=rf_reg_obj_func,
                 space=rf_space,
                 algo=tpe.suggest,
@@ -225,11 +225,15 @@ if model_type == "Random forest":
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
+        # Train with best params
+        if "best_params" in st.session_state:
             if st.button("Train model with best hyperparameters", key="rfr_best"):
-                st.session_state["model"] = RandomForestRegressor(**best).fit(
+                st.session_state["model"] = RandomForestRegressor(
+                    **st.session_state["best_params"]
+                ).fit(
                     st.session_state["X_train"].loc[:, feat_used],
                     st.session_state["y_train"],
                 )
@@ -274,7 +278,7 @@ if model_type == "Random forest":
 
         # Hyperparameter optimization
         if st.button("Run hyperparameter optimization", key="rfc_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=rf_class_obj_func,
                 space=rf_space,
                 algo=tpe.suggest,
@@ -283,12 +287,15 @@ if model_type == "Random forest":
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
-            # Train with best params
+        # Train with best params
+        if "best_params" in st.session_state:
             if st.button("Train model with best hyperparameters", key="rfc_best"):
-                st.session_state["model"] = RandomForestClassifier(**best).fit(
+                st.session_state["model"] = RandomForestClassifier(
+                    **st.session_state["best_params"]
+                ).fit(
                     st.session_state["X_train"].loc[:, feat_used],
                     st.session_state["y_train"],
                 )
@@ -349,7 +356,7 @@ elif model_type == "XGBoost":
 
         # Hyperpameter optimization
         if st.button("Run hyperparameter optimization", key="xgbr_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=xgb_reg_obj_func,
                 space=xgb_space,
                 algo=tpe.suggest,
@@ -358,12 +365,15 @@ elif model_type == "XGBoost":
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
-            # Train with best params
+        # Train with best params
+        if "best_params" in st.session_state:
             if st.button("Train model with best hyperparameters", key="xgbr_best"):
-                st.session_state["model"] = XGBRegressor(**best).fit(
+                st.session_state["model"] = XGBRegressor(
+                    **st.session_state["best_params"]
+                ).fit(
                     st.session_state["X_train"].loc[:, feat_used],
                     st.session_state["y_train"],
                 )
@@ -410,7 +420,7 @@ elif model_type == "XGBoost":
 
         # Hyperparameter optimization
         if st.button("Run hyperparameter optimization", key="xgbc_opt"):
-            best = fmin(
+            st.session_state["best_params"] = fmin(
                 fn=xgb_class_obj_func,
                 space=xgb_space,
                 algo=tpe.suggest,
@@ -419,12 +429,15 @@ elif model_type == "XGBoost":
             )
 
             st.write("Best hyperparameters found:")
-            for key, value in best.items():
+            for key, value in st.session_state["best_params"].items():
                 st.write(f"  - {key}: {value:.2f}")
 
-            # Train with best params
+        # Train with best params
+        if "best_params" in st.session_state:
             if st.button("Train model with best hyperparameters", key="xgbc_best"):
-                st.session_state["model"] = XGBClassifier(**best).fit(
+                st.session_state["model"] = XGBClassifier(
+                    **st.session_state["best_params"]
+                ).fit(
                     st.session_state["X_train"].loc[:, feat_used],
                     st.session_state["y_train"],
                 )
