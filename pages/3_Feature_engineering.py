@@ -67,7 +67,6 @@ if object_or_cat:
         st.session_state["problem_type"] = "Multiclass classification"
         st.session_state["y_type"] = "categorical with multiple categories"
 else:
-    # cast to pd.DataFrame otherwise sklearn models doesn't run
     st.session_state["y"] = pd.DataFrame(st.session_state["df"][target_var])
     st.session_state["problem_type"] = "Regression"
     st.session_state["y_type"] = "numeric"
@@ -82,6 +81,7 @@ y_type = find_label_type(st.session_state["df"], target_var, dtype_map_inverse)
 original_encodings = pd.DataFrame({"Variable": cat_cols, "Encoding": "One-Hot"})
 
 
+# Encode categorical variables
 st.header("Encode categorical variables")
 st.write(
     "Keep in mind that any changes here automatically removes all principal components from your data!"
@@ -104,6 +104,8 @@ cat_res_df = response.data
 cat_df = create_cat_df(
     cat_res_df, st.session_state["df"], target_var, y_type, dtype_map_inverse
 )
+
+# Transform continous variables
 st.header("Transfrorm continous variables")
 st.write(
     "Keep in mind that any changes here automatically removes all principal components from your data!"
@@ -140,6 +142,8 @@ cont_df = create_cont_df(st.session_state["df"], cont_cols, cont_res_df, cut_siz
 st.session_state["X"] = create_x_df(cont_df, cat_df)
 st.write(st.session_state["X"])
 
+
+# PCA
 if st.toggle(label="PCA"):
     variance_df = None
     feat_used = st.multiselect(
