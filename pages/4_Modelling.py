@@ -111,9 +111,7 @@ if "df" not in st.session_state:
     st.write("First upload some data on the homepage")
     st.stop()
 elif "X" not in st.session_state:
-    st.write(
-        "First choose the target variable and approriate encoding on the encoding page"
-    )
+    st.write("First choose the target variable on the Feature engineering page")
     st.stop()
 
 n_features = st.session_state["X"].shape[1]
