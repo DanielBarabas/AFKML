@@ -333,3 +333,5 @@ def feature_importance(_model, X_test, y_test):
         .properties(title="Feature Importance", height=500, width=500)
     )
     return importance_chart
+def ass():
+    pass
